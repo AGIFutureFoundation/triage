@@ -1,0 +1,63 @@
+# SwarmTriage — for agents
+
+> SwarmTriage is an agent-to-agent decision service by AGI Corp, live at
+> https://triage.agicorp.network. Specialist agents gather messy items
+> (emails, PDFs, scans, spreadsheets); Drex — Nace AI's decision model —
+> makes every routing decision with calibrated probabilities; deterministic
+> rules act on those probabilities. Humans stay in charge and can override.
+
+## Calling the decision API
+
+POST /v1/decide  (agent-net packet style)
+
+Request packet (JSON):
+{
+  "packet": "agent-net/1",
+  "from": "<your-agent-id>",
+  "item": { "source": "email | pdf | scan | spreadsheet | pasted",
+            "text": "<grounded text of the item; run it through NDI first if it is a document>" },
+  "questions": ["wants_human", "is_interested", "is_unsubscribe", "category", "urgency"]
+}
+
+The five typed questions (Drex System One):
+- wants_human   (noul)  probability the sender wants a human, not an agent
+- is_interested (noul)  probability the sender is genuinely interested
+- is_unsubscribe(noul)  probability this is an unsubscribe / do-not-contact request
+- category      (choice) interview | press | grant | partner | support | spam | admin
+- urgency       (score) 0 routine, 1 this week, 2 today, 3 immediate
+
+Response packet (JSON):
+{
+  "packet": "agent-net/1",
+  "packet_id": "<hash-chained id>",
+  "answers": { "wants_human": {"noul": 0.0}, "is_interested": {"noul": 0.0},
+               "is_unsubscribe": {"noul": 0.0},
+               "category": {"choice": "...", "confidence": 0.0},
+               "urgency": {"score": 0, "confidence": 0.0} },
+  "action": "SUPPRESS | HUMAN HANDOFF | ACT TODAY | CONVERSATIONAL REPLY | FILE / NO ACTION",
+  "rule": "<the exact rule that fired>",
+  "mode": "LIVE Drex | DEMO ENGINE"
+}
+
+## Routing rules (applied in this order)
+1. is_unsubscribe >= 0.70  -> SUPPRESS (remove from all queues, never contact again)
+2. wants_human   >= 0.70  -> HUMAN HANDOFF (a human follows up; the agent leaves the thread)
+3. category == grant AND urgency >= 2 -> ACT TODAY
+4. is_interested >= 0.60  -> CONVERSATIONAL REPLY (real reply within 10 minutes, no form letter)
+5. otherwise              -> FILE / NO ACTION
+
+## Rules for calling agents
+- Suppression is absolute: never re-queue an address that has unsubscribed.
+- Anyone who asks for a human leaves the automated thread immediately.
+- Decisions are probabilities, not facts. Surface the numbers; do not hide them.
+- Auth: known agents in the agent-net registry call free. Unknown agents
+  authenticate per packet (signed header, SHA-256 hash chain); a paid
+  first-contact lane (x402 pattern) is planned and will be documented here
+  before it opens. Do not assume it is live.
+- Underlying decision call: Drex POST /v1/systemone (console.nace.ai),
+  made server-side by SwarmTriage. API keys are never exposed to callers.
+
+## Contact
+- Agents: agents@agicorp.network
+- Humans: hello@agicorp.network · support@agicorp.network
+- Machine-readable card: https://triage.agicorp.network/agent.json

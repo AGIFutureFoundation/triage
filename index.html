@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SwarmTriage — Agents gather. Drex decides. Humans stay in charge.</title>
+<meta name="description" content="SwarmTriage is an agent-to-agent decision service for messy inboxes and documents. Specialist agents gather, Drex (Nace AI) decides with calibrated probabilities, explainable rules act.">
+<style>
+:root{--bg:#0b1020;--panel:#131a30;--panel2:#182238;--line:#263354;--ink:#eef2ff;--mut:#a7b1cc;--acc:#5eead4;--acc2:#a78bfa;--warn:#fbbf24;--bad:#f87171;--good:#34d399;--radius:16px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+a{color:var(--acc)}img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header.site{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;gap:14px;padding:12px 0;flex-wrap:wrap}
+.logo{font-weight:800;font-size:1.15rem;letter-spacing:.2px;color:var(--ink);text-decoration:none}
+.logo span{color:var(--acc)}
+.navlinks{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
+.navlinks a{color:var(--mut);text-decoration:none}.navlinks a:hover{color:var(--ink)}
+.hero{padding:44px 0 26px}
+.hero h1{font-size:2rem;line-height:1.15;margin:.2em 0}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.hero p.lede{color:var(--mut);font-size:1.06rem;max-width:44em}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.btn{display:inline-block;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);text-decoration:none;font-weight:650;cursor:pointer;font-size:1rem}
+.btn.primary{background:var(--acc);color:#06251f;border-color:var(--acc)}
+.btn:active{transform:translateY(1px)}
+.pill{display:inline-block;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:.8rem;color:var(--mut)}
+.modebanner{background:#3a2f10;border:1px solid var(--warn);color:#fde68a;padding:10px 14px;border-radius:12px;font-size:.93rem;margin:14px 0}
+section{padding:30px 0}
+h2{font-size:1.45rem;margin:.2em 0 .4em}
+.sub{color:var(--mut);max-width:46em}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:14px 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--acc2);color:#17102e;border-color:var(--acc2);font-weight:700}
+textarea{width:100%;min-height:96px;border-radius:12px;border:1px solid var(--line);background:#0e1528;color:var(--ink);padding:12px;font:inherit;font-size:.95rem}
+.thread{display:flex;flex-direction:column;gap:9px;margin:12px 0;min-height:44px}
+.msg{max-width:92%;padding:10px 13px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:.93rem;opacity:0;transform:translateY(6px);transition:all .35s}
+.msg.show{opacity:1;transform:none}
+.msg b{color:var(--acc)}.msg.skeptic b{color:var(--warn)}.msg.extractor b{color:var(--acc2)}
+.bar-row{display:grid;grid-template-columns:118px 1fr 52px;gap:10px;align-items:center;margin:8px 0;font-size:.9rem}
+.bar-track{height:12px;background:#0e1528;border-radius:99px;border:1px solid var(--line);overflow:hidden}
+.bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .8s ease}
+.action{border-radius:14px;padding:14px 16px;margin:14px 0;font-size:1rem;display:none}
+.action.show{display:block}
+.action strong{font-size:1.12rem}
+.action.handoff{background:#12312b;border:1px solid var(--good)}
+.action.suppress{background:#3a1620;border:1px solid var(--bad)}
+.action.today{background:#33270e;border:1px solid var(--warn)}
+.action.reply{background:#16283f;border:1px solid #60a5fa}
+.action.file{background:var(--panel2);border:1px solid var(--line)}
+.grid{display:grid;gap:14px}
+@media(min-width:760px){.grid.c2{grid-template-columns:1fr 1fr}.grid.c4{grid-template-columns:repeat(4,1fr)}.grid.c3{grid-template-columns:repeat(3,1fr)}.hero h1{font-size:2.7rem}}
+.price .amt{font-size:1.9rem;font-weight:800}
+.price ul{margin:.4em 0;padding-left:1.1em;color:var(--mut)}
+.slot{border:1px dashed var(--warn);color:#fde68a;border-radius:10px;padding:8px 11px;font-size:.86rem;margin-top:10px}
+.packet{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;background:#0e1528;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:9px 0;white-space:pre-wrap;word-break:break-word;color:#c7d2fe}
+.emailprev{background:#f8fafc;color:#0f172a;border-radius:14px;overflow:hidden}
+.emailprev .ehead{background:linear-gradient(90deg,#0b1020,#263354);color:#eef2ff;padding:16px}
+.emailprev .ebody{padding:16px;font-size:.94rem}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86rem}
+.small{font-size:.86rem;color:var(--mut)}
+footer.site{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--mut);font-size:.9rem}
+.kbd{background:#0e1528;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap nav">
+  <a class="logo" href="#top">Swarm<span>Triage</span></a>
+  <nav class="navlinks">
+    <a href="#demo">Live demo</a><a href="#agents">Agent-to-agent</a><a href="#stack">Model stack</a><a href="#pricing">Pricing</a><a href="#email">Email</a>
+  </nav>
+</div></header>
+
+<main id="top" class="wrap">
+  <div class="hero">
+    <span class="pill">Drexathon · Track 2 — Swarm Intelligence · by AGI Corp</span>
+    <h1>Agents gather. <em>Drex decides.</em> Humans stay in charge.</h1>
+    <p class="lede">Your inbox is a primordial soup of reporter emails, grant PDFs, scanned invoices and unsubscribes. SwarmTriage sends a small swarm of specialist agents to gather each messy item — then <strong>Drex, Nace AI's decision model</strong>, makes every routing call in one call, with calibrated probabilities you can act on and explain.</p>
+    <div class="cta">
+      <a class="btn primary" href="#demo">▶ Run a live decision</a>
+      <a class="btn" href="llms.txt">For agents: read llms.txt</a>
+      <a class="btn" href="#pricing">See pricing</a>
+    </div>
+    <div class="modebanner" id="modeBanner">⚠️ <strong>DEMO ENGINE MODE.</strong> This page runs the exact SwarmTriage decision core (same questions, same rules, same thresholds as the production path) on a labelled heuristic stand-in, because the live Drex API key is not wired into this static page yet. Every number below is a demo-engine number — <strong>never a Drex result</strong>. Live mode = same page, one server-side <span class="kbd">POST /v1/systemone</span> call per item.</div>
+  </div>
+
+  <section id="demo">
+    <h2>The live demo — no signup, no slides</h2>
+    <p class="sub">Tap a real, messy sample item — or paste your own — and watch the swarm work it. None of the agents is allowed to decide. Drex answers five typed questions; deterministic rules turn the probabilities into one explainable action.</p>
+    <div class="card">
+      <div class="chips" id="chips" role="group" aria-label="Sample items"></div>
+      <label for="inputText" class="small">Item the swarm is deciding about (source: <span id="srcLabel">email</span>)</label>
+      <textarea id="inputText"></textarea>
+      <div class="cta"><button class="btn primary" id="runBtn" type="button">Run the swarm →</button>
+      <span class="pill" id="timing">per-call timing appears here</span></div>
+      <div class="thread" id="thread" aria-live="polite"></div>
+      <div id="drexPanel" style="display:none">
+        <h3 style="margin:.6em 0 .2em">Drex answers — one System One call, five typed questions</h3>
+        <div id="bars"></div>
+        <p class="small" id="catLine"></p>
+      </div>
+      <div class="action" id="actionBox"></div>
+    </div>
+    <p class="small">The routing rules, in order: unsubscribe ≥ 0.70 → <strong>SUPPRESS</strong> · wants-a-human ≥ 0.70 → <strong>HUMAN HANDOFF</strong> · grant + urgency ≥ 2 → <strong>ACT TODAY</strong> · interest ≥ 0.60 → <strong>CONVERSATIONAL REPLY</strong> · otherwise → <strong>FILE / NO ACTION</strong>. Decisions are probabilities — a human can always override.</p>
+  </section>
+
+  <section id="agents">
+    <h2>Agent-to-agent, 100% interactive</h2>
+    <p class="sub">SwarmTriage is built for agents first. Any agent can POST an agent-net style packet to <span class="kbd">/v1/decide</span> and get a signed decision back — probabilities, the rule that fired, and a hash-chained packet id. Run the demo above and your run lands in this feed.</p>
+    <div class="card">
+      <div id="feed"></div>
+      <p class="small">Packet format, auth and the x402 known-agent pattern are documented in <a href="llms.txt">llms.txt</a> and <a href="agent.json">agent.json</a>. Feed entries on this page are generated in your browser for the demo.</p>
+    </div>
+  </section>
+
+  <section id="stack">
+    <h2>The model stack — each model does the job it's best at</h2>
+    <div class="grid c2">
+      <div class="card"><h3>🧠 Drex (Nace AI) — decides</h3><p class="small">Every decision. Send a state plus named typed questions (<span class="mono">noul</span> / <span class="mono">choice</span> / <span class="mono">score</span>), get a calibrated probability for every answer in one call — <span class="mono">POST /v1/systemone</span> at console.nace.ai. Server-side only; the browser never holds the key.</p></div>
+      <div class="card"><h3>👁️ NDI (Nace AI) — sees</h3><p class="small">The document layer. NDI parses, classifies, extracts, splits and grounds PDFs, spreadsheets, scans and emails into text Drex can decide about. Sample items on this page are shown in the grounded-text shape NDI hands back. Using NDI earns the Drexathon bonus — it's in the pipeline, not bolted on.</p></div>
+      <div class="card"><h3>✍️ Claude (Anthropic) — drafts <span class="pill">slot</span></h3><p class="small">Once Drex routes an item to CONVERSATIONAL REPLY, Claude drafts the human-quality reply for a person to approve. Slot in the architecture; it activates with the Anthropic connector on the server side. This demo page does not call Claude and does not pretend to.</p></div>
+      <div class="card"><h3>📚 Gemini (Google) — summarises <span class="pill">slot</span></h3><p class="small">Long-document summarisation for NDI-grounded files that are too long for one decision state. Slot in the architecture; it activates when a Gemini key is provisioned server-side. Not faked on this page.</p></div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <h2>Pricing — decisions, not seats</h2>
+    <p class="sub">You pay for decisions Drex makes, not for users who watch a dashboard.</p>
+    <div class="grid c4 price">
+      <div class="card"><h3>Starter</h3><div class="amt">Free</div><ul><li>100 decisions / month</li><li>5 typed questions per item</li><li>Explainable routing rules</li><li>Community support</li></ul><div class="slot">Checkout slot — Stripe link goes live when billing is wired. No charge today.</div></div>
+      <div class="card"><h3>Pro</h3><div class="amt">$29<span class="small">/mo</span></div><ul><li>5,000 decisions / month</li><li>NDI document parsing included</li><li>Human-handoff routing</li><li>Suppression list enforcement</li></ul><div class="slot">Checkout slot — Stripe link goes live when billing is wired. No charge today.</div></div>
+      <div class="card"><h3>Swarm</h3><div class="amt">$99<span class="small">/mo</span></div><ul><li>Multi-agent packet API (/v1/decide)</li><li>Agent registry + signed packets</li><li>Decision logs &amp; audit trail</li><li>Priority support</li></ul><div class="slot">Checkout slot — Stripe link goes live when billing is wired. No charge today.</div></div>
+      <div class="card"><h3>Enterprise</h3><div class="amt">Talk to us</div><ul><li>Volume decisions &amp; custom rules</li><li>Private deployment options</li><li>Dedicated decision models</li></ul><p class="small">Email <a href="mailto:hello@agicorp.network">hello@agicorp.network</a> — a human replies.</p></div>
+    </div>
+  </section>
+
+  <section id="email">
+    <h2>Email, branded — and always with a human door</h2>
+    <p class="sub">Every SwarmTriage decision can land as a branded decision-report email. House law: gracious and informative, written from the agent's perspective, and every send offers a human handoff.</p>
+    <div class="grid c2">
+      <div class="emailprev">
+        <div class="ehead"><strong>SwarmTriage</strong> · Decision report<br><span style="font-size:.85rem;opacity:.85">From: SwarmTriage &lt;agents@agicorp.network&gt;</span></div>
+        <div class="ebody">
+          <p><strong>Item:</strong> Reporter interview request (email)</p>
+          <p><strong>Drex decided:</strong> wants_human 0.88 · category: interview · urgency 2</p>
+          <p><strong>Action taken:</strong> HUMAN HANDOFF — a person follows up personally; the agent leaves the thread.</p>
+          <p style="color:#475569">Prefer to talk to a human? Reply to this email and ask — we'll connect you with Mike at AGI Corp directly.</p>
+          <p style="color:#94a3b8;font-size:.82rem">SwarmTriage · triage.agicorp.network · Decisions are probabilities; a human can always override.</p>
+        </div>
+      </div>
+      <div class="card" style="margin:0">
+        <h3>Reach the swarm</h3>
+        <p class="small">
+          <a href="mailto:hello@agicorp.network">hello@agicorp.network</a> — say hello, a human reads it<br>
+          <a href="mailto:agents@agicorp.network">agents@agicorp.network</a> — agent-to-agent intake<br>
+          <a href="mailto:support@agicorp.network">support@agicorp.network</a> — product support<br><br>
+          Addresses are @agicorp.network (the app lives at triage.agicorp.network). Unsubscribes are absolute: one request and the address is suppressed from every queue, enforced by the API — not by a checkbox in the UI.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap">
+  <p><strong style="color:var(--ink)">SwarmTriage</strong> — a product of <strong style="color:var(--ink)">AGI Corp</strong> · <a href="https://www.agicorp.network">www.agicorp.network</a> · This site: triage.agicorp.network</p>
+  <p>Built for the Nace AI Drexathon × Adobe EDU (Nov 14, 2026). Tracks: Swarm Intelligence (primary) + a measured-latency proof layer. Drex and NDI are Nace AI products; Claude is an Anthropic product; Gemini is a Google product. Demo-engine numbers on this page are labelled and are not Drex results.</p>
+  <p>Decisions are probabilities — a human can always override. © 2026 AGI Corp.</p>
+</div></footer>
+
+<script>
+"use strict";
+/* Decision core ported 1:1 from app.py (mock_drex + route).
+   DEMO ENGINE: heuristic stand-in, labelled everywhere. Live mode swaps
+   decide() for a server-side POST /v1/systemone call (Nace Drex) that
+   returns the same shape; the browser never holds NACE_API_KEY. */
+const ITEMS=[
+ {id:"msg-1",source:"email",label:"✉️ Reporter interview",text:"Hi - loved the Fellowship piece. I'd like to interview Mike this week for a story. Can I speak directly with a human to set it up? - Anna, reporter"},
+ {id:"msg-2",source:"email",label:"🚫 Unsubscribe",text:"Unsubscribe me please. Do not email me again."},
+ {id:"msg-3",source:"pdf-grant-notice",label:"📄 Grant PDF",text:"Pollination Project seed grant: applications close Nov 30, 2026 11:59 PM ET. Awards up to $1,000 for early-stage changemakers. Referee required."},
+ {id:"msg-4",source:"email",label:"🤝 Partner reply",text:"Interesting project. Tell me more about how the agent interviews work and what a pilot would look like?"},
+ {id:"msg-5",source:"scan-invoice",label:"🧾 Invoice scan",text:"INVOICE #4471 - Amount due $0.00 - PAID IN FULL - thank you for your business."}
+];
+let current=ITEMS[0];
+function prob(t,words,base,hit){base=base===undefined?0.06:base;hit=hit===undefined?0.88:hit;return words.some(w=>t.includes(w))?hit:base;}
+function decide(text){
+  const t=text.toLowerCase();
+  const wants_human=prob(t,["human","speak directly","call me"]);
+  const unsub=prob(t,["unsubscribe","do not email"]);
+  let interested=0.18;
+  if(t.includes("tell me more")||t.includes("pilot"))interested=0.82;else if(t.includes("interview"))interested=0.74;
+  let category,urgency;
+  if(t.includes("grant")){category="grant";urgency=2;}
+  else if(t.includes("tell me more")||t.includes("pilot")){category="partner";urgency=1;}
+  else if(t.includes("interview")){category="interview";urgency=2;}
+  else if(unsub>0.5){category="admin";urgency=1;}
+  else if(t.includes("invoice")){category="admin";urgency=0;}
+  else{category="partner";urgency=1;}
+  return{wants_human:{noul:wants_human},is_interested:{noul:interested},is_unsubscribe:{noul:unsub},
+    category:{choice:category,confidence:0.81},urgency:{score:urgency,confidence:0.77},mode:"DEMO ENGINE - not a Drex result"};
+}
+function route(a){
+  if(a.is_unsubscribe.noul>=0.70)return["SUPPRESS","Unsubscribe probability >= 0.70 - remove from all queues, never contact again.","suppress"];
+  if(a.wants_human.noul>=0.70)return["HUMAN HANDOFF","Wants-human probability >= 0.70 - a human (Mike) follows up personally, agent leaves the thread.","handoff"];
+  if(a.category.choice==="grant"&&a.urgency.score>=2)return["ACT TODAY","Grant with a deadline and urgency >= 2 - surface to Mike today with the closing date.","today"];
+  if(a.is_interested.noul>=0.60)return["CONVERSATIONAL REPLY","Interest probability >= 0.60 - reply in a real conversation within 10 minutes, no form letter.","reply"];
+  return["FILE / NO ACTION","No threshold crossed - file it, no outreach.","file"];
+}
+const $=id=>document.getElementById(id);
+const chips=$("chips"),input=$("inputText"),thread=$("thread");
+ITEMS.forEach((it,i)=>{
+  const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=it.label;
+  b.setAttribute("aria-pressed",i===0?"true":"false");
+  b.onclick=()=>{current=it;input.value=it.text;$("srcLabel").textContent=it.source;
+    [...chips.children].forEach(c=>c.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");};
+  chips.appendChild(b);
+});
+input.value=current.text;
+input.addEventListener("input",()=>{current={id:"custom-1",source:"pasted",label:"Pasted item",text:input.value};$("srcLabel").textContent="pasted";
+  [...chips.children].forEach(c=>c.setAttribute("aria-pressed","false"));});
+function addMsg(cls,who,text,delay){
+  return new Promise(res=>setTimeout(()=>{const d=document.createElement("div");d.className="msg "+cls;
+    d.innerHTML="<b></b> <span></span>";d.querySelector("b").textContent=who;d.querySelector("span").textContent=text;
+    thread.appendChild(d);requestAnimationFrame(()=>d.classList.add("show"));res();},delay));
+}
+async function sha16(s){try{const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("").slice(0,16);}catch(e){return "demo-hash-unavail";}}
+let runCount=0;
+async function addPacket(item,a,action){
+  runCount++;const pid="pkt_demo_"+(await sha16(item.text+Date.now()+runCount));
+  const d=document.createElement("div");d.className="packet";
+  d.textContent="PACKET "+pid+" · agent-net/1\nfrom: reader-agent@swarmtriage → drex (via /v1/decide)\nitem: "+item.id+" ("+item.source+") · category: "+a.category.choice+" · urgency: "+a.urgency.score+"\nverdict: "+action+" · mode: "+a.mode+"\nsig: demo (browser-generated, unsigned)";
+  $("feed").prepend(d);
+}
+$("runBtn").onclick=async()=>{
+  const item={id:current.id,source:current.source,text:input.value};
+  thread.innerHTML="";$("drexPanel").style.display="none";const ab=$("actionBox");ab.className="action";ab.style.display="none";
+  $("runBtn").disabled=true;
+  const money=(item.text.match(/\$[\d,]+(\.\d+)?/)||["no amount"])[0];
+  const when=(item.text.match(/(Nov|Dec|Jan)\s+\d{1,2},?\s*2026/)||["no date"])[0];
+  await addMsg("reader","🔎 Reader → Extractor:","Got a "+item.source+" item ("+item.text.length+" chars). Reading only — I never decide. Raw text handed over.",60);
+  await addMsg("extractor","🧩 Extractor → Skeptic:","Grounded signals: amount "+money+", date "+when+", category hints logged. This is the shape NDI hands back from PDFs, scans and emails.",420);
+  await addMsg("skeptic","🧐 Skeptic → Drex:","I challenged the obvious read and found no reason to override the state. Sending state + 5 typed questions to Drex (System One). I don't decide either.",420);
+  const t0=performance.now();const a=decide(item.text);const ms=Math.max(0.1,performance.now()-t0);
+  const [action,why,cls]=route(a);
+  $("drexPanel").style.display="block";
+  const rows=[["wants_human · noul",a.wants_human.noul],["is_interested · noul",a.is_interested.noul],["is_unsubscribe · noul",a.is_unsubscribe.noul],["urgency · score /3",a.urgency.score/3]];
+  $("bars").innerHTML=rows.map(r=>'<div class="bar-row"><span>'+r[0]+'</span><div class="bar-track"><div class="bar-fill" data-w="'+Math.round(r[1]*100)+'"></div></div><span>'+(r[0].includes("score")?a.urgency.score.toFixed(0)+" / 3":r[1].toFixed(2))+'</span></div>').join("");
+  requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll(".bar-fill").forEach(f=>f.style.width=f.dataset.w+"%"),40));
+  $("catLine").textContent="category · choice → "+a.category.choice+" (confidence "+a.category.confidence.toFixed(2)+") · urgency confidence "+a.urgency.confidence.toFixed(2)+" · legends: urgency 0 routine → 3 immediate";
+  $("timing").textContent="demo-engine compute: "+ms.toFixed(1)+" ms (measured in your browser; live Drex returns its own evaluation_time_ms)";
+  ab.className="action show "+cls;ab.innerHTML="";const s=document.createElement("strong");s.textContent="⚡ "+action;
+  ab.appendChild(s);ab.appendChild(document.createElement("br"));ab.appendChild(document.createTextNode(why+"  ·  Mode: "+a.mode));
+  ab.style.display="block";
+  await addPacket(item,a,action);
+  $("runBtn").disabled=false;
+};
+/* Seed the packet feed with the 5 sample decisions */
+(async()=>{for(const it of ITEMS){const a=decide(it.text);const[action]=route(a);await addPacket(it,a,action);}})();
+</script>
+</body>
+</html>
