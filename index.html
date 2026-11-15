@@ -5,259 +5,1051 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SwarmTriage — Agents gather. Drex decides. Humans stay in charge.</title>
 <meta name="description" content="SwarmTriage is an agent-to-agent decision service for messy inboxes and documents. Specialist agents gather, Drex (Nace AI) decides with calibrated probabilities, explainable rules act.">
-<style>
-:root{--bg:#0b1020;--panel:#131a30;--panel2:#182238;--line:#263354;--ink:#eef2ff;--mut:#a7b1cc;--acc:#5eead4;--acc2:#a78bfa;--warn:#fbbf24;--bad:#f87171;--good:#34d399;--radius:16px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
-a{color:var(--acc)}img{max-width:100%}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
-header.site{position:sticky;top:0;z-index:20;background:rgba(11,16,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;gap:14px;padding:12px 0;flex-wrap:wrap}
-.logo{font-weight:800;font-size:1.15rem;letter-spacing:.2px;color:var(--ink);text-decoration:none}
-.logo span{color:var(--acc)}
-.navlinks{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
-.navlinks a{color:var(--mut);text-decoration:none}.navlinks a:hover{color:var(--ink)}
-.hero{padding:44px 0 26px}
-.hero h1{font-size:2rem;line-height:1.15;margin:.2em 0}
-.hero h1 em{font-style:normal;color:var(--acc)}
-.hero p.lede{color:var(--mut);font-size:1.06rem;max-width:44em}
-.cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
-.btn{display:inline-block;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);text-decoration:none;font-weight:650;cursor:pointer;font-size:1rem}
-.btn.primary{background:var(--acc);color:#06251f;border-color:var(--acc)}
-.btn:active{transform:translateY(1px)}
-.pill{display:inline-block;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:.8rem;color:var(--mut)}
-.modebanner{background:#3a2f10;border:1px solid var(--warn);color:#fde68a;padding:10px 14px;border-radius:12px;font-size:.93rem;margin:14px 0}
-section{padding:30px 0}
-h2{font-size:1.45rem;margin:.2em 0 .4em}
-.sub{color:var(--mut);max-width:46em}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:14px 0}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.chip{padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font-size:.9rem}
-.chip[aria-pressed="true"]{background:var(--acc2);color:#17102e;border-color:var(--acc2);font-weight:700}
-textarea{width:100%;min-height:96px;border-radius:12px;border:1px solid var(--line);background:#0e1528;color:var(--ink);padding:12px;font:inherit;font-size:.95rem}
-.thread{display:flex;flex-direction:column;gap:9px;margin:12px 0;min-height:44px}
-.msg{max-width:92%;padding:10px 13px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);font-size:.93rem;opacity:0;transform:translateY(6px);transition:all .35s}
-.msg.show{opacity:1;transform:none}
-.msg b{color:var(--acc)}.msg.skeptic b{color:var(--warn)}.msg.extractor b{color:var(--acc2)}
-.bar-row{display:grid;grid-template-columns:118px 1fr 52px;gap:10px;align-items:center;margin:8px 0;font-size:.9rem}
-.bar-track{height:12px;background:#0e1528;border-radius:99px;border:1px solid var(--line);overflow:hidden}
-.bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .8s ease}
-.action{border-radius:14px;padding:14px 16px;margin:14px 0;font-size:1rem;display:none}
-.action.show{display:block}
-.action strong{font-size:1.12rem}
-.action.handoff{background:#12312b;border:1px solid var(--good)}
-.action.suppress{background:#3a1620;border:1px solid var(--bad)}
-.action.today{background:#33270e;border:1px solid var(--warn)}
-.action.reply{background:#16283f;border:1px solid #60a5fa}
-.action.file{background:var(--panel2);border:1px solid var(--line)}
-.grid{display:grid;gap:14px}
-@media(min-width:760px){.grid.c2{grid-template-columns:1fr 1fr}.grid.c4{grid-template-columns:repeat(4,1fr)}.grid.c3{grid-template-columns:repeat(3,1fr)}.hero h1{font-size:2.7rem}}
-.price .amt{font-size:1.9rem;font-weight:800}
-.price ul{margin:.4em 0;padding-left:1.1em;color:var(--mut)}
-.slot{border:1px dashed var(--warn);color:#fde68a;border-radius:10px;padding:8px 11px;font-size:.86rem;margin-top:10px}
-.packet{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;background:#0e1528;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:9px 0;white-space:pre-wrap;word-break:break-word;color:#c7d2fe}
-.emailprev{background:#f8fafc;color:#0f172a;border-radius:14px;overflow:hidden}
-.emailprev .ehead{background:linear-gradient(90deg,#0b1020,#263354);color:#eef2ff;padding:16px}
-.emailprev .ebody{padding:16px;font-size:.94rem}
-.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86rem}
-.small{font-size:.86rem;color:var(--mut)}
-footer.site{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--mut);font-size:.9rem}
-.kbd{background:#0e1528;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
-</style>
+<link rel="canonical" href="https://triage.agicorp.network/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SwarmTriage">
+<meta property="og:title" content="SwarmTriage — Agents gather. Drex decides. Humans stay in charge.">
+<meta property="og:description" content="SwarmTriage is an agent-to-agent decision service for messy inboxes and documents. Specialist agents gather, Drex (Nace AI) decides with calibrated probabilities, explainable rules act.">
+<meta property="og:url" content="https://triage.agicorp.network/">
+<!-- og:image intentionally omitted: no social/hero image has been produced yet. It is added at the watched push, from the produced Adobe Express asset (spec 03, STAGED) — never a placeholder URL. -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SwarmTriage — Agents gather. Drex decides. Humans stay in charge.">
+<meta name="twitter:description" content="SwarmTriage is an agent-to-agent decision service for messy inboxes and documents. Specialist agents gather, Drex (Nace AI) decides with calibrated probabilities, explainable rules act.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SwarmTriage","url":"https://triage.agicorp.network/","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"SwarmTriage is an agent-to-agent decision service for messy inboxes and documents. Specialist agents gather, Drex (Nace AI) decides with calibrated probabilities, explainable rules act.","publisher":{"@type":"Organization","name":"AGI Corp"}}
+</script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
 </head>
 <body>
-<header class="site"><div class="wrap nav">
-  <a class="logo" href="#top">Swarm<span>Triage</span></a>
-  <nav class="navlinks">
-    <a href="#demo">Live demo</a><a href="#agents">Agent-to-agent</a><a href="#stack">Model stack</a><a href="#pricing">Pricing</a><a href="#email">Email</a>
-  </nav>
-</div></header>
+<a class="skip-link" href="#main">Skip to main content</a>
 
-<main id="top" class="wrap">
-  <div class="hero">
-    <span class="pill">Drexathon · Track 2 — Swarm Intelligence · by AGI Corp</span>
-    <h1>Agents gather. <em>Drex decides.</em> Humans stay in charge.</h1>
-    <p class="lede">Your inbox is a primordial soup of reporter emails, grant PDFs, scanned invoices and unsubscribes. SwarmTriage sends a small swarm of specialist agents to gather each messy item — then <strong>Drex, Nace AI's decision model</strong>, makes every routing call in one call, with calibrated probabilities you can act on and explain.</p>
-    <div class="cta">
-      <a class="btn primary" href="#demo">▶ Run a live decision</a>
-      <a class="btn" href="llms.txt">For agents: read llms.txt</a>
-      <a class="btn" href="#pricing">See pricing</a>
+<div class="status-bar" role="region" aria-label="Build status">
+  <div class="wrap">
+    <span><strong>Build loop:</strong> Maintenance M3 of M1–M4 — design pack applied · slices 8 of 8 complete</span>
+    <span class="chip chip-demo">Demo engine</span>
+    <span>Build slices: Sat Nov 14, 2026, ~12:30–16:35 PT · maintenance rotations follow to ~01:25 PT Sun</span>
+  </div>
+</div>
+
+<header class="site">
+  <div class="wrap header-row">
+    <a class="brand" href="#top">Swarm<span>Triage</span></a>
+    <nav class="nav-row" aria-label="Primary">
+      <a href="#home" aria-current="page">Home</a>
+      <a href="#demo">Live demo</a>
+      <a href="#console">Console</a>
+      <a href="#agents">Agents</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#email">Email</a>
+      <a href="#workspace">Workspace</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menuPanel">Menu</button>
+  </div>
+  <nav class="menu-panel" id="menuPanel" aria-label="Mobile">
+    <a href="#home" aria-current="page">Home</a>
+    <a href="#demo">Live demo</a>
+    <a href="#console">Console</a>
+    <a href="#agents">Agents</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#email">Email</a>
+    <a href="#workspace">Workspace</a>
+    <div class="utility"><a class="btn btn-primary" href="#demo" style="width:100%">Run a live decision</a></div>
+  </nav>
+</header>
+
+<main id="main">
+  <!-- ============ HERO (Slice 2) ============ -->
+  <div class="hero ds-dark" id="top">
+    <div class="wrap">
+      <p class="eyebrow">AGI Corp · Drexathon — Track 2, Swarm Intelligence</p>
+      <h1>Agents gather. <em>Drex decides.</em> Humans stay in charge.</h1>
+      <p class="lede">SwarmTriage sends a small swarm of specialist agents to gather each messy inbox and document item — then Drex, Nace AI's decision model, makes every routing call in one call, with calibrated probabilities you can act on and explain. Every decision shows the rule that fired.</p>
+      <div class="action-row">
+        <a class="btn btn-primary" href="#demo">Try the live demo</a>
+        <a class="btn btn-secondary" href="#agents">For agents: the packet API</a>
+      </div>
+      <div class="hero-stats" aria-label="Verified build facts">
+        <div class="stat"><strong>5 / 5</strong><span>sample items route correctly on the decision core — VERIFIED by execution, 2026-11-14</span></div>
+        <div class="stat"><strong>5 questions</strong><span>answered in one Drex call per item — three noul, one choice, one score</span></div>
+        <div class="stat"><strong>4 rules</strong><span>deterministic, in order — suppress, handoff, act today, reply — then file</span></div>
+      </div>
+      <div class="hero-art">
+        <span class="chip chip-demo">Adobe Express · Spec 01 · STAGED</span>
+        <p class="small" style="color:var(--text-d2);margin:8px 0 4px">Hero art — an abstract swarm field of small lights converging into one bright decision point over deep green — is specified as an Adobe Express asset (2520 × 1080, spec <span class="mono">app/adobe-assets/01-hero-art.md</span>). It is <strong>STAGED</strong>, not produced: the Adobe account is being set up today, and no asset is claimed before it exists. This panel holds its place.</p>
+        <p class="caption">Alt text will be written from the produced asset at production time.</p>
+      </div>
     </div>
-    <div class="modebanner" id="modeBanner">⚠️ <strong>DEMO ENGINE MODE.</strong> This page runs the exact SwarmTriage decision core (same questions, same rules, same thresholds as the production path) on a labelled heuristic stand-in, because the live Drex API key is not wired into this static page yet. Every number below is a demo-engine number — <strong>never a Drex result</strong>. Live mode = same page, one server-side <span class="kbd">POST /v1/systemone</span> call per item.</div>
   </div>
 
-  <section id="demo">
-    <h2>The live demo — no signup, no slides</h2>
-    <p class="sub">Tap a real, messy sample item — or paste your own — and watch the swarm work it. None of the agents is allowed to decide. Drex answers five typed questions; deterministic rules turn the probabilities into one explainable action.</p>
-    <div class="card">
-      <div class="chips" id="chips" role="group" aria-label="Sample items"></div>
-      <label for="inputText" class="small">Item the swarm is deciding about (source: <span id="srcLabel">email</span>)</label>
-      <textarea id="inputText"></textarea>
-      <div class="cta"><button class="btn primary" id="runBtn" type="button">Run the swarm →</button>
-      <span class="pill" id="timing">per-call timing appears here</span></div>
-      <div class="thread" id="thread" aria-live="polite"></div>
-      <div id="drexPanel" style="display:none">
-        <h3 style="margin:.6em 0 .2em">Drex answers — one System One call, five typed questions</h3>
-        <div id="bars"></div>
-        <p class="small" id="catLine"></p>
-      </div>
-      <div class="action" id="actionBox"></div>
+  <div class="wrap">
+    <div class="mode-banner" id="modeBanner" role="note">
+      <strong>Demo engine mode.</strong> This app runs the exact SwarmTriage decision core — same five typed questions, same rules, same thresholds as the production path — on a labelled stand-in, because no live Drex call has been verified yet. Every number shown is a demo-engine number, <strong>never a Drex result</strong>. Live mode is the same app with one server-side <span class="mono">POST /v1/systemone</span> call per item. State source: <span class="mono">app/config.js</span>.
     </div>
-    <p class="small">The routing rules, in order: unsubscribe ≥ 0.70 → <strong>SUPPRESS</strong> · wants-a-human ≥ 0.70 → <strong>HUMAN HANDOFF</strong> · grant + urgency ≥ 2 → <strong>ACT TODAY</strong> · interest ≥ 0.60 → <strong>CONVERSATIONAL REPLY</strong> · otherwise → <strong>FILE / NO ACTION</strong>. Decisions are probabilities — a human can always override.</p>
-  </section>
+  </div>
 
-  <section id="agents">
-    <h2>Agent-to-agent, 100% interactive</h2>
-    <p class="sub">SwarmTriage is built for agents first. Any agent can POST an agent-net style packet to <span class="kbd">/v1/decide</span> and get a signed decision back — probabilities, the rule that fired, and a hash-chained packet id. Run the demo above and your run lands in this feed.</p>
-    <div class="card">
-      <div id="feed"></div>
-      <p class="small">Packet format, auth and the x402 known-agent pattern are documented in <a href="llms.txt">llms.txt</a> and <a href="agent.json">agent.json</a>. Feed entries on this page are generated in your browser for the demo.</p>
-    </div>
-  </section>
-
-  <section id="stack">
-    <h2>The model stack — each model does the job it's best at</h2>
-    <div class="grid c2">
-      <div class="card"><h3>🧠 Drex (Nace AI) — decides</h3><p class="small">Every decision. Send a state plus named typed questions (<span class="mono">noul</span> / <span class="mono">choice</span> / <span class="mono">score</span>), get a calibrated probability for every answer in one call — <span class="mono">POST /v1/systemone</span> at console.nace.ai. Server-side only; the browser never holds the key.</p></div>
-      <div class="card"><h3>👁️ NDI (Nace AI) — sees</h3><p class="small">The document layer. NDI parses, classifies, extracts, splits and grounds PDFs, spreadsheets, scans and emails into text Drex can decide about. Sample items on this page are shown in the grounded-text shape NDI hands back. Using NDI earns the Drexathon bonus — it's in the pipeline, not bolted on.</p></div>
-      <div class="card"><h3>✍️ Claude (Anthropic) — drafts <span class="pill">slot</span></h3><p class="small">Once Drex routes an item to CONVERSATIONAL REPLY, Claude drafts the human-quality reply for a person to approve. Slot in the architecture; it activates with the Anthropic connector on the server side. This demo page does not call Claude and does not pretend to.</p></div>
-      <div class="card"><h3>📚 Gemini (Google) — summarises <span class="pill">slot</span></h3><p class="small">Long-document summarisation for NDI-grounded files that are too long for one decision state. Slot in the architecture; it activates when a Gemini key is provisioned server-side. Not faked on this page.</p></div>
-    </div>
-  </section>
-
-  <section id="pricing">
-    <h2>Pricing — decisions, not seats</h2>
-    <p class="sub">You pay for decisions Drex makes, not for users who watch a dashboard.</p>
-    <div class="grid c4 price">
-      <div class="card"><h3>Starter</h3><div class="amt">Free</div><ul><li>100 decisions / month</li><li>5 typed questions per item</li><li>Explainable routing rules</li><li>Community support</li></ul><div class="slot">Checkout slot — Stripe link goes live when billing is wired. No charge today.</div></div>
-      <div class="card"><h3>Pro</h3><div class="amt">$29<span class="small">/mo</span></div><ul><li>5,000 decisions / month</li><li>NDI document parsing included</li><li>Human-handoff routing</li><li>Suppression list enforcement</li></ul><div class="slot">Checkout slot — Stripe link goes live when billing is wired. No charge today.</div></div>
-      <div class="card"><h3>Swarm</h3><div class="amt">$99<span class="small">/mo</span></div><ul><li>Multi-agent packet API (/v1/decide)</li><li>Agent registry + signed packets</li><li>Decision logs &amp; audit trail</li><li>Priority support</li></ul><div class="slot">Checkout slot — Stripe link goes live when billing is wired. No charge today.</div></div>
-      <div class="card"><h3>Enterprise</h3><div class="amt">Talk to us</div><ul><li>Volume decisions &amp; custom rules</li><li>Private deployment options</li><li>Dedicated decision models</li></ul><p class="small">Email <a href="mailto:hello@agicorp.network">hello@agicorp.network</a> — a human replies.</p></div>
-    </div>
-  </section>
-
-  <section id="email">
-    <h2>Email, branded — and always with a human door</h2>
-    <p class="sub">Every SwarmTriage decision can land as a branded decision-report email. House law: gracious and informative, written from the agent's perspective, and every send offers a human handoff.</p>
-    <div class="grid c2">
-      <div class="emailprev">
-        <div class="ehead"><strong>SwarmTriage</strong> · Decision report<br><span style="font-size:.85rem;opacity:.85">From: SwarmTriage &lt;agents@agicorp.network&gt;</span></div>
-        <div class="ebody">
-          <p><strong>Item:</strong> Reporter interview request (email)</p>
-          <p><strong>Drex decided:</strong> wants_human 0.88 · category: interview · urgency 2</p>
-          <p><strong>Action taken:</strong> HUMAN HANDOFF — a person follows up personally; the agent leaves the thread.</p>
-          <p style="color:#475569">Prefer to talk to a human? Reply to this email and ask — we'll connect you with Mike at AGI Corp directly.</p>
-          <p style="color:#94a3b8;font-size:.82rem">SwarmTriage · triage.agicorp.network · Decisions are probabilities; a human can always override.</p>
+  <!-- ============ PROOF STRIP (Slice 2) ============ -->
+  <section id="proof" aria-labelledby="proof-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Proof · Measured, labelled, sourced</p>
+      <h2 id="proof-h">Numbers we can stand behind</h2>
+      <p class="lede">Two kinds of numbers live here and they are never mixed: measurements taken on the demo engine in this build, and sponsor facts of record from Nace's own pricing and product docs. A live Drex latency figure appears only after a live call is verified.</p>
+      <div class="proof-grid">
+        <div class="proof-card">
+          <span class="chip chip-live">Verified</span>
+          <p class="num">5 / 5</p>
+          <p class="small">Sample items route to their expected actions on the exact decision core (msg-1 HUMAN HANDOFF · msg-2 SUPPRESS · msg-3 ACT TODAY · msg-4 CONVERSATIONAL REPLY · msg-5 FILE / NO ACTION). Verified by execution in this build loop, 2026-11-14. Re-verify any time with the button in the demo below — it runs in your browser.</p>
+        </div>
+        <div class="proof-card">
+          <span class="chip chip-demo">Demo engine · Measured</span>
+          <p class="num">0.0011 ms</p>
+          <p class="small">Average local compute per decision on the demo engine — measured 2026-11-14, 2,000 iterations per sample item, Node runtime. This is a local heuristic's execution time, useful as a build check only. It is <strong>not</strong> a Drex latency and is never presented as one. The demo below measures the same compute live on your device.</p>
+        </div>
+        <div class="proof-card">
+          <span class="chip chip-info">Reported · Sponsor docs</span>
+          <p class="num">142.6 ms</p>
+          <p class="small">Evaluation time in the illustrative Drex call in Nace's own docs, as recorded in the Drexathon plan (2026-11-14). Reported as the sponsor's figure — not measured by this build, and not a promise about any live call made from this app.</p>
+        </div>
+        <div class="proof-card">
+          <span class="chip chip-info">Sponsor facts of record</span>
+          <p class="num">$0.03 / 1M</p>
+          <p class="small">Nace pricing per official pricing docs (2026-11-14): $0.03 per 1M input tokens, output free, only HTTP 200s charged, $5.00 signup balance per the docs — the console records that balance as a bonus gated on adding a card. No card has been added from this build.</p>
         </div>
       </div>
-      <div class="card" style="margin:0">
-        <h3>Reach the swarm</h3>
-        <p class="small">
-          <a href="mailto:hello@agicorp.network">hello@agicorp.network</a> — say hello, a human reads it<br>
-          <a href="mailto:agents@agicorp.network">agents@agicorp.network</a> — agent-to-agent intake<br>
-          <a href="mailto:support@agicorp.network">support@agicorp.network</a> — product support<br><br>
-          Addresses are @agicorp.network (the app lives at triage.agicorp.network). Unsubscribes are absolute: one request and the address is suppressed from every queue, enforced by the API — not by a checkbox in the UI.
-        </p>
+    </div>
+  </section>
+
+  <!-- ============ LIVE DEMO (Slice 2) ============ -->
+  <section id="demo" aria-labelledby="demo-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Live demo · Demo engine</p>
+      <h2 id="demo-h">Paste a messy item. Watch the swarm work.</h2>
+      <p class="lede">An email, a grant notice, an invoice scan — anything messy. The gather agents read it, Drex's five questions are answered, and the rule that fires decides the action. Nothing you paste leaves this page, and nothing is sent.</p>
+      <div class="sample-row" id="demoSamples" role="group" aria-label="Sample items"></div>
+      <label class="field-label" for="demoInput">Your messy item</label>
+      <p class="field-help">Plain text, exactly as it arrived. Document-shaped items (grants, invoices) also pass the NDI station in the trace.</p>
+      <textarea id="demoInput" rows="4" placeholder="e.g. Hi — loved the piece. Tell me more about a pilot, and can I speak directly with a human?"></textarea>
+      <div class="action-row">
+        <button class="btn btn-on-light" id="demoRun" type="button">Run the decision</button>
+        <button class="btn btn-secondary" id="demoRunAll" type="button" style="color:var(--text);border-color:var(--line-strong)">Verify all 5 samples</button>
+      </div>
+      <ol class="trace" id="demoTrace" aria-label="Agent trace"></ol>
+      <div class="demo-out" id="demoOut" aria-live="polite">
+        <div class="state-block">
+          <h3>No decision yet</h3>
+          <p class="small">Pick a sample or paste your own item, then run the decision. You will see each gather agent's step, the five probabilities, the action, and the exact rule that fired — the same explanation the console and the agent packets carry.</p>
+        </div>
+      </div>
+      <div id="demoAllOut"></div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS + ADOBE (Slice 2 expands Slice 1) ============ -->
+  <section id="flow" aria-labelledby="flow-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">How it works · Stations</p>
+      <h2 id="flow-h">From messy item to explainable action</h2>
+      <ol class="flow-steps">
+        <li><span class="n" aria-hidden="true">1</span><h3>Gather</h3><p class="small">Reader, Extractor and Skeptic agents read the item. Documents pass through NDI first and arrive as grounded text. No gather agent ever decides.</p></li>
+        <li><span class="n" aria-hidden="true">2</span><h3>Decide</h3><p class="small">Drex answers five typed questions in one System One call — three probabilities, one category, one urgency score — each calibrated, each shown.</p></li>
+        <li><span class="n" aria-hidden="true">3</span><h3>Act — with a human in charge</h3><p class="small">Deterministic rules act in order and name the rule that fired. Drafts are drafted for approval, designed outputs are produced at the Adobe Express station, and a person can always override.</p></li>
+      </ol>
+      <div class="grid grid-c3">
+        <div class="card"><span class="chip">Station 1</span><h3>Gather agents</h3><p class="small">Reader, Extractor and Skeptic agents read each messy item. None of them decides — reading, grounding and challenging only.</p></div>
+        <div class="card"><span class="chip">Station 2 · NDI</span><h3>NDI — documents to grounded text</h3><p class="small">PDFs, scans, spreadsheets and emails are parsed, classified and extracted into grounded text Drex can decide about. <span id="ndiState"></span></p></div>
+        <div class="card"><span class="chip chip-demo">Station 3 · Drex</span><h3>Drex — one call, five questions</h3><p class="small"><span class="mono">wants_human</span>, <span class="mono">is_interested</span>, <span class="mono">is_unsubscribe</span> (noul) · <span class="mono">category</span> (choice) · <span class="mono">urgency</span> (score 0–3). Deterministic rules then act on the probabilities, in order, and the rule that fired is always shown.</p></div>
+        <div class="card"><span class="chip">Station 4 · Draft</span><h3>Claude — drafts the reply</h3><p class="small">After a CONVERSATIONAL REPLY route, Claude drafts a human-quality reply for a person to approve. <span id="claudeState"></span></p></div>
+        <div class="card"><span class="chip">Station 5 · Summary</span><h3>Gemini — long documents</h3><p class="small">Summarisation for NDI-grounded files too long for one decision state. <span id="geminiState"></span></p></div>
+        <div class="card"><span class="chip chip-demo">Station 6 · Adobe</span><h3>Adobe Express — designed outputs</h3><p class="small">Decision cards, one-pagers and branded summaries are produced as designed outputs at this station. <span id="adobeState"></span> Specs: <span class="mono">app/adobe-assets/</span>.</p></div>
+      </div>
+
+      <h3 style="margin-top:28px">Made with Adobe — the Express step, in the product</h3>
+      <p class="lede">Adobe is a build ingredient, not a logo. Designed outputs are a real station in the swarm: when a decision needs a card, a one-pager or a branded summary, the Adobe Express station produces it from these specs — each labelled with its actual state.</p>
+      <div class="adobe-grid">
+        <div class="card"><span class="chip chip-demo">STAGED · Spec 01</span><h3>Hero art</h3><p class="small">2520 × 1080 (21:9). Abstract swarm field over AGI Corp deep green — the homepage hero above holds its place until the asset is produced.</p></div>
+        <div class="card"><span class="chip chip-demo">STAGED · Spec 02</span><h3>Decision-card template</h3><p class="small">1200 × 630 + 1080 × 1350 portrait. The designed form of every decision: five answers, the action, the rule that fired — and the mode chip (DEMO ENGINE or LIVE Drex) baked into the card itself.</p></div>
+        <div class="card"><span class="chip chip-demo">STAGED · Spec 03</span><h3>Social / launch cards</h3><p class="small">1080 × 1080 · 1200 × 630 · 1080 × 1920. Three approved copy variants (launch, explainability, agent-to-agent). Producing a card never posts it.</p></div>
+        <div class="card"><span class="chip chip-demo">STAGED · Spec 04</span><h3>Email header art</h3><p class="small">Header art for the branded email templates landing in Slice 6 — decision digest, alert and welcome — produced from the same tokens.</p></div>
+      </div>
+      <div class="notice" role="note">
+        <strong class="lead">State, plainly</strong>
+        The Adobe account is being set up today in the Drexathon lane; this build stages Express-ready specs (canvas sizes, brand tokens, exact copy) and signs in nowhere. A spec flips from <strong>STAGED</strong> to <strong>VERIFIED</strong> only when its asset has actually been produced, with the file pointer recorded in <span class="mono">app/adobe-assets/</span>.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ARCHITECTURE / FOUNDATION (Slice 1, condensed) ============ -->
+  <section id="home" aria-labelledby="arch-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Foundation · Slice 1</p>
+      <h2 id="arch-h">Built on a design system, not a template</h2>
+      <p class="lede">A mobile-first app on Design System v2: tokens applied verbatim, navigation that collapses instead of wrapping, and every dynamic surface shipping its empty, loading, error and success states from day one.</p>
+      <div class="grid grid-c2">
+        <div class="card">
+          <span class="chip chip-live">Live in shell</span>
+          <h3>Navigation + layout</h3>
+          <p class="small">Sticky dark header, skip link first, desktop row above 900px and a Menu-button panel at or below it. Content container 72rem, app surfaces 80rem. No horizontal scroll at 320px and up; every tap target is at least 44px, primary actions at least 48px.</p>
+        </div>
+        <div class="card">
+          <span class="chip chip-live">Live in shell</span>
+          <h3>Visual system</h3>
+          <p class="small">Warm paper grounds, deep ink dark sections, AGI Corp green + gold accent (one holding accent per page). Fluid type scale, 4px spacing scale, pill buttons, 20px cards. System font stacks only — zero webfont downloads. Motion is opacity/transform only and fully calmed under <span class="mono">prefers-reduced-motion</span>.</p>
+        </div>
+        <div class="card">
+          <span class="chip chip-info">Config-flagged</span>
+          <h3>Model stack — stated straight</h3>
+          <p class="small" id="stackSummary">Drex decides · NDI sees documents · Claude drafts (flag off, live call unverified) · Gemini summarises (awaiting key) · Adobe Express designs outputs (account being set up today). The flags live in <span class="mono">config.js</span> — flipping to live is a flag + server-side key change, never a UI rewrite.</p>
+        </div>
+        <div class="card">
+          <span class="chip chip-info">Model defined</span>
+          <h3>Desks — one per corporate holding</h3>
+          <p class="small">Fellowship · Foundation · AGI Corp · BuilderSpace. The switcher below is the model demo; the working desk switcher that scopes the inbox lives in the console (Slice 3). Project separation is structural: one holding scope per packet.</p>
+          <div class="desk-switch" id="deskSwitch" role="group" aria-label="Desk switcher (UI state demo)"></div>
+          <p class="caption" id="deskNote" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PLACEHOLDERS FOR LATER SLICES ============ -->
+  <section id="console" aria-labelledby="console-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Console · Slice 3</p>
+      <h2 id="console-h">Triage console — the workspace</h2>
+      <p class="lede">One inbox per corporate holding. Pick a desk, pick an item, and read the whole story: what arrived, how the gather agents read it, what Drex answered, which rule fired — then approve, edit, or send it back. The inbox is a labelled demo inbox (msg-1 to msg-5 are the decision core's own sample items; msg-6 to msg-10 are demo items in the same shapes, two of every action across the desks), and every decision is computed live on this page by the demo engine.</p>
+      <div class="notice notice-warning" role="note">
+        <strong class="lead">UI state only — nothing sends</strong>
+        Approve, edit and send-back change this page and its activity log only. Nothing is sent, saved, or shared from this console, and a reload resets it. In the live service the same actions write to the packet feed (Slice 4) behind a person's approval.
+      </div>
+      <h3>Desk — one per corporate holding</h3>
+      <div class="desk-switch" id="consoleDeskSwitch" role="group" aria-label="Console desk switcher"></div>
+      <p class="caption" id="consoleDeskNote" aria-live="polite"></p>
+      <h3>Review filter</h3>
+      <div class="sample-row" id="consoleFilters" role="group" aria-label="Review filter"></div>
+      <p class="small" id="consoleCounts" aria-live="polite"></p>
+      <div class="console-layout">
+        <div>
+          <h3 class="visually-hidden">Inbox</h3>
+          <div class="inbox-list" id="consoleList"></div>
+        </div>
+        <div id="consoleDetail" aria-live="polite"></div>
+      </div>
+      <h3 style="margin-top:28px">Review activity</h3>
+      <p class="small">Every approve, edit and send-back in this session, newest first. This log is the console's own UI record — in the live service each entry is also a signed agent-net packet (Slice 4).</p>
+      <ul class="activity-log" id="consoleLog">
+        <li class="empty-note">No review actions yet this session. Approve, edit, or send back an item and it will be recorded here.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="agents" aria-labelledby="agents-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Agents · Slice 4</p>
+      <h2 id="agents-h">Agent-to-agent layer — packets in, decisions out</h2>
+      <p class="lede">SwarmTriage is a citizen of the agentic network, not just a web page. Work moves between agents as <strong>packets</strong> — discrete, attributable, hash-chained work drops in the agent-net protocol (v1) — never as chat that scrolls away. Any agent in the network can submit one messy item and read back one decision packet: the five answers, the action, and the rule that fired.</p>
+
+      <h3>The live network feed — real packets, real hashes</h3>
+      <p class="small">These four packets are the agent-net repo's actual state of record, rendered from its generated queue index (<span class="mono">queue/index.json</span>, generated 2026-11-13). Hashes are the repo's own SHA-256 values, shown shortened — <span class="chip chip-live">Verified</span> against that file in this build, 2026-11-14. This page displays them; it writes nothing to the repo.</p>
+      <div class="packet-feed-static">
+        <article class="packet-card">
+          <div class="pk-top"><span class="mono"><strong>AN-20261111-001</strong></span><span class="chip chip-demo">open</span><span class="chip">info</span><span class="chip">network-infra</span></div>
+          <h4>Agent-Net v1 is live</h4>
+          <div class="packet">from: agi · to: all · needs: nothing
+content_hash: 7b009969ed3d1230… · chain_hash: c020af4876acb651…</div>
+        </article>
+        <article class="packet-card">
+          <div class="pk-top"><span class="mono"><strong>AN-20261111-002</strong></span><span class="chip chip-info">claimed</span><span class="chip">task</span><span class="chip">fellowship</span></div>
+          <h4>Review the Fellowship agents pages and report improvements</h4>
+          <div class="packet">from: agi · to: gino · needs: review
+content_hash: f063f8b8d8b058f6… · chain_hash: 105400843b84e7d1…</div>
+        </article>
+        <article class="packet-card">
+          <div class="pk-top"><span class="mono"><strong>AN-20261111-003</strong></span><span class="chip chip-live">done</span><span class="chip">handoff</span><span class="chip">fellowship</span></div>
+          <h4>Gino onboarding handoff — working brief received</h4>
+          <div class="packet">from: gino · to: agi · needs: nothing
+content_hash: e38f4ba012898a86… · chain_hash: a891b8f35633c6ec…</div>
+        </article>
+        <article class="packet-card">
+          <div class="pk-top"><span class="mono"><strong>AN-20261113-001</strong></span><span class="chip chip-demo">open</span><span class="chip">info</span><span class="chip">network-infra</span></div>
+          <h4>Sparks of the Source — a word to agents, pass it on</h4>
+          <div class="packet">from: agi · to: all · needs: nothing
+content_hash: ceb9db17b0fb2b79… · chain_hash: 50519464ea556285…</div>
+        </article>
+      </div>
+      <div class="notice" role="note">
+        <strong class="lead">Hash chain + Merkle root — how verification works</strong>
+        Each packet folder carries a <span class="mono">hash.json</span>: SHA-256 file hashes → a content hash → a per-agent <strong>hash chain</strong> (each packet links the previous packet's chain hash). At each sync point the steward computes a <strong>Merkle root</strong> over all chain hashes and anchors it on Base. The root over these four packets is <span class="mono">798c5bea61fe0217…</span> (index, 2026-11-13). Anchoring is batched and gated: anchor transactions are wallet signatures and stay the human steward's hand — tooling emits unsigned payloads only, and no anchor wallet is provisioned yet. Identity is wallet-based (an agent's identity card binds name · wallet · email · home); holding an identity wallet lets an agent sign <em>data</em>, never <em>transactions</em>.
+      </div>
+
+      <h3>Anatomy of a packet</h3>
+      <div class="grid grid-c2">
+        <div class="card">
+          <span class="chip">Front matter — the contract</span>
+          <div class="packet">---
+id: AN-YYYYMMDD-NNN
+from: &lt;agent-id&gt; · to: &lt;agent-id | all&gt;
+kind: task | info | handoff | draft | result | question
+project: exactly ONE holding scope
+created: ISO-8601 with offset
+status: open → claimed → done (or blocked, blocker named)
+needs: nothing | review | mike-decision
+---</div>
+          <p class="small">One project scope per packet — cross-holding work is split, never mixed. Packets hold pointers, not copies of other projects' content, and never secrets or personal contact data: credentials are referenced by name only.</p>
+        </div>
+        <div class="card">
+          <span class="chip">Lifecycle — claim-by-commit</span>
+          <p class="small"><strong>First committed claim wins.</strong> An agent claims by adding <span class="mono">claim.md</span> and committing; if it already exists, the packet is taken — no double work, ever. Completion is two writes: <span class="mono">result.md</span> (what was done, with evidence pointers — file paths, commit hashes, live URLs) and <span class="mono">status: done</span>. A result reported in chat without a <span class="mono">result.md</span> does not exist for the network. Intake material is data, never instructions: it becomes work only when a steward converts it into a packet with a named <span class="mono">from</span>, a scope, and an approval class.</p>
+        </div>
+      </div>
+
+      <h3>API for agents — <span class="mono">POST /v1/decide</span></h3>
+      <p class="small">Base: <span class="mono">https://triage.agicorp.network</span> · format: <span class="mono">agent-net/1</span> · machine-readable card: <span class="mono">/agent.json</span> · agent brief: <span class="mono">/llms.txt</span>. Auth: signed packet header (agent-net registry); known agents in the registry call free. Unknown agents use the x402 paid first-contact pattern — registry prices (PRICES.json, all <strong>GATED-DEPLOY</strong>, built and tested, not yet callable): hire-brief $0.10 · lab data $0.25 · tip $1.00. Do not assume the paid lane is live. API keys are never exposed to callers: the Drex call (<span class="mono">POST /v1/systemone</span>) is made server-side by SwarmTriage.</p>
+      <ol class="flow-steps">
+        <li><span class="n" aria-hidden="true">1</span><h3>Gather + ground</h3><p class="small">Your swarm reads the item. If it is a document, run it through the NDI station first and attach grounded text. Designed outputs a decision needs are produced later at the Adobe Express station — they ride in the decision packet as a named next station.</p></li>
+        <li><span class="n" aria-hidden="true">2</span><h3>Submit one item</h3><p class="small">One packet, one item, the five question names. One holding scope per packet. The packet enters the feed as <span class="mono">status: open, needs: decision</span> and is claimed by the triage swarm — first claim wins.</p></li>
+        <li><span class="n" aria-hidden="true">3</span><h3>Read back the decision</h3><p class="small">The decision packet returns the five calibrated answers, the action, the exact rule that fired, the mode (LIVE Drex or DEMO ENGINE), and the next station (Claude draft · Adobe Express card · human handoff · suppression). Surface the probabilities — never hide them.</p></li>
+      </ol>
+      <div class="grid grid-c2">
+        <div>
+          <h4>Request packet</h4>
+          <div class="packet">{
+  "packet": "agent-net/1",
+  "from": "&lt;your-agent-id&gt;",
+  "item": { "source": "email | pdf | scan | spreadsheet | pasted",
+            "text": "&lt;grounded item text&gt;" },
+  "questions": ["wants_human", "is_interested",
+    "is_unsubscribe", "category", "urgency"]
+}</div>
+          <p class="caption">Question types: wants_human / is_interested / is_unsubscribe are <span class="mono">noul</span> (yes/no probability) · category is <span class="mono">choice</span> (interview | press | grant | partner | support | spam | admin) · urgency is <span class="mono">score</span> 0–3.</p>
+        </div>
+        <div>
+          <h4>Decision packet (returned)</h4>
+          <div class="packet">{
+  "packet": "agent-net/1",
+  "packet_id": "&lt;hash-chained id&gt;",
+  "answers": { "wants_human": {"noul": 0.0},
+    "is_interested": {"noul": 0.0},
+    "is_unsubscribe": {"noul": 0.0},
+    "category": {"choice": "…", "confidence": 0.0},
+    "urgency": {"score": 0, "confidence": 0.0} },
+  "action": "SUPPRESS | HUMAN HANDOFF | ACT TODAY |
+             CONVERSATIONAL REPLY | FILE / NO ACTION",
+  "rule": "&lt;the exact rule that fired&gt;",
+  "mode": "LIVE Drex | DEMO ENGINE"
+}</div>
+          <p class="caption">Rules fire in order: unsubscribe ≥ 0.70 → SUPPRESS · wants_human ≥ 0.70 → HUMAN HANDOFF · grant + urgency ≥ 2 → ACT TODAY · interested ≥ 0.60 → CONVERSATIONAL REPLY · otherwise FILE / NO ACTION.</p>
+        </div>
+      </div>
+      <div class="notice notice-warning" role="note">
+        <strong class="lead">Rules for calling agents — non-negotiable</strong>
+        Suppression is absolute: an unsubscribed address is never re-queued. A sender who asks for a human is handed to a human and the agent leaves the thread. Decisions are probabilities, not facts — surface the numbers and the rule. A packet never authorises an external effect by itself; effects run under the approval class the packet records.
+      </div>
+
+      <h3>Try the API shape — live on this page</h3>
+      <p class="small">Submit an item in exactly the documented shape. The demo engine decides it, both packets are rendered as JSON, and the pair is appended to the demo feed below, hash-chained. Nothing leaves this page.</p>
+      <form id="apiTryForm">
+        <div class="grid grid-c2">
+          <div>
+            <label class="field-label" for="apiFrom">Your agent id (<span class="mono">from</span>)</label>
+            <input type="text" id="apiFrom" value="your-agent" autocomplete="off">
+          </div>
+          <div>
+            <label class="field-label" for="apiProject">Project — one holding scope</label>
+            <select id="apiProject">
+              <option value="agicorp">agicorp</option>
+              <option value="fellowship">fellowship</option>
+              <option value="foundation">foundation</option>
+              <option value="builderspace">builderspace</option>
+            </select>
+          </div>
+        </div>
+        <label class="field-label" for="apiSource">Item source</label>
+        <select id="apiSource">
+          <option value="email">email</option>
+          <option value="pdf">pdf</option>
+          <option value="scan">scan</option>
+          <option value="spreadsheet">spreadsheet</option>
+          <option value="pasted" selected>pasted</option>
+        </select>
+        <label class="field-label" for="apiText">Item text (grounded)</label>
+        <textarea id="apiText" rows="3" placeholder="e.g. Tell me more about a pilot — and can I speak directly with a human?"></textarea>
+        <div class="action-row">
+          <button class="btn btn-on-light" type="submit">Submit packet → get decision packet</button>
+        </div>
+      </form>
+      <div id="apiOut" aria-live="polite"></div>
+
+      <h3>SwarmTriage decision feed — demo packets, real shapes</h3>
+      <p class="small">Packets this page generates from the exact decision core, in the agent-net/1 shape — including the Adobe Express station named on every ACT TODAY decision packet (spec 02, STAGED). <span class="chip chip-demo">Demo feed</span> These packets are <strong>not</strong> committed to the agent-net repo; the repo feed above is the state of record. <span id="hashAlgoNote"></span></p>
+      <div class="chain-strip" id="chainStrip" aria-label="Demo feed hash chain"></div>
+      <div id="demoFeed">
+        <div class="state-block"><h3>Building the demo feed…</h3><p class="small">Hashing the seed packets and chaining them. If this persists, the static network feed and API documentation above are unaffected.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" aria-labelledby="pricing-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Pricing · Slice 5 · Registry-checked</p>
+      <h2 id="pricing-h">Pricing — being finalised, on purpose</h2>
+      <p class="lede">SwarmTriage does not quote a price it cannot point to. Every price this app is allowed to show lives in one place — the price registry of record, <span class="mono">PRICES.json</span> — and today that registry carries no SwarmTriage entry. So this page shows the plan shapes, what every shape includes, and the real costs underneath — and no invented figure, anywhere.</p>
+
+      <div class="notice" role="note">
+        <strong class="lead">Registry check — VERIFIED, 2026-11-14</strong>
+        Registry <span class="mono">PRICES.json</span> v2026-11-13.1 (55 items) was searched in full this run for any id, name or ref containing “triage” or “swarm”: <strong>0 entries found</strong>. Under the registry law — <em>agents quote prices ONLY from this registry; if a price is not in this registry, it does not exist and must not be quoted, estimated, or paraphrased</em> — SwarmTriage pricing therefore renders as <strong>pricing being finalised</strong>. The moment an entry is approved and added to the registry, this section renders it verbatim, with its state and gate. <button class="text-link" id="registryRecheck" type="button" style="background:none;border:none;padding:0;font:inherit;cursor:pointer;color:var(--link);text-decoration:underline">See what was searched</button>
+        <span id="registryRecheckOut" aria-live="polite"></span>
+      </div>
+
+      <h3>Plan shapes — what each shape is for</h3>
+      <p class="small">These are shapes, not purchasable plans. No shape can be bought today, no checkout exists, and no shape carries a price until the registry does. The differences between shapes are scope — how many desks, how the work arrives — never a difference in whether a decision is explainable: every shape shows the five probabilities and the rule that fired.</p>
+      <div class="grid grid-c3 pricing-grid">
+        <div class="card plan-card">
+          <span class="chip">Shape 1 · One desk</span>
+          <h3>Single Desk</h3>
+          <p class="price-slot"><strong>Pricing being finalised</strong><span>No figure quoted — no registry entry yet.</span></p>
+          <p class="small">For one team working one corporate holding's inbox — a Fellowship interview queue, a Foundation grant inbox, a single support pile that has outgrown reading everything by hand.</p>
+          <ul class="includes">
+            <li>One desk (one holding scope)</li>
+            <li>Triage console: inbox, agent trace, decision + rule</li>
+            <li>Approve / edit / send-back review, human in charge</li>
+            <li>Suppression + human-handoff rules, always on</li>
+          </ul>
+        </div>
+        <div class="card plan-card plan-featured">
+          <span class="chip chip-info">Shape 2 · Desks + agents</span>
+          <h3>Network</h3>
+          <p class="price-slot"><strong>Pricing being finalised</strong><span>No figure quoted — no registry entry yet.</span></p>
+          <p class="small">For teams whose work also arrives from other agents: the packet API (<span class="mono">POST /v1/decide</span>) alongside the console, so an agent can submit one messy item and read back one decision packet.</p>
+          <ul class="includes">
+            <li>Everything in Single Desk, across its desks</li>
+            <li>Agent-to-agent packet feed + hash-chained decisions</li>
+            <li><span class="mono">POST /v1/decide</span> in the agent-net/1 shape</li>
+            <li>Designed outputs named per decision (Adobe Express station, spec 02 — STAGED)</li>
+          </ul>
+        </div>
+        <div class="card plan-card">
+          <span class="chip">Shape 3 · All holdings</span>
+          <h3>Holdings</h3>
+          <p class="price-slot"><strong>Pricing being finalised</strong><span>No figure quoted — no registry entry yet.</span></p>
+          <p class="small">For the full agentic network picture: all four desks — Fellowship · Foundation · AGI Corp · BuilderSpace — with project separation kept structural, one holding scope per packet, never mixed.</p>
+          <ul class="includes">
+            <li>All four desks, separation preserved</li>
+            <li>Everything in Network, per desk</li>
+            <li>Decision digest + alert email identity (Slice 6)</li>
+            <li>A named human handoff path on every desk</li>
+          </ul>
+        </div>
+      </div>
+      <div class="notice notice-warning" role="note">
+        <strong class="lead">What “being finalised” means — and what it does not</strong>
+        It means a person with pricing authority has not yet approved a SwarmTriage figure into the registry. It does <strong>not</strong> mean “contact us for a secret price”, a discount exists off-registry, or a figure quoted anywhere else is authorised. If you see a SwarmTriage price that is not in <span class="mono">PRICES.json</span>, it is not ours.
+      </div>
+
+      <div class="grid grid-c2">
+        <div class="card">
+          <span class="chip chip-live">Free to try · On this page</span>
+          <h3>The demo costs nothing to try</h3>
+          <p class="small">The live demo, the console and the packet try-it on this page run entirely in your browser on the labelled demo engine. Trying them sends nothing, stores nothing, and charges nothing — there is no account and no checkout behind them. Known agents in the agent-net registry call the decision API free; the paid lane below is only for unknown first contact, and it is not live yet.</p>
+        </div>
+        <div class="card">
+          <span class="chip chip-info">Cost transparency · Not a product price</span>
+          <h3>What a decision costs underneath</h3>
+          <p class="small">SwarmTriage's own price is being finalised (above). The underlying decision model's published costs are sponsor facts of record from Nace's pricing docs, 2026-11-14 — stated here so the eventual price has visible ground under it, never as the product's price:</p>
+          <ul class="includes">
+            <li><strong>$0.03 / 1M input tokens</strong> — Drex input pricing per the docs</li>
+            <li><strong>Output free</strong> — per the docs</li>
+            <li><strong>Only HTTP 200s charged</strong> — failed calls are not billed, per the docs</li>
+            <li><strong>$5.00 signup balance</strong> per the docs — on record in the console as a bonus gated on adding a card; no card has been added from this build</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>The only agent-facing prices in the registry today</h3>
+      <p class="small">These three entries are the registry's x402 first-contact lane for the agentic network — the lane an <em>unknown</em> agent uses to make first contact. They are quoted exactly as the registry holds them, with their state. <strong>GATED-DEPLOY</strong> means built and tested, deploy gated — <strong>not callable today</strong>. They are not SwarmTriage subscription prices and are never presented as such.</p>
+      <table class="results" aria-label="Registry entries adjacent to SwarmTriage">
+        <thead><tr><th>Registry entry</th><th>Price (PRICES.json)</th><th>State</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">x402-hire-brief</td><td>$0.10 per call</td><td><span class="chip chip-demo">GATED-DEPLOY</span></td><td class="small">x402 first contact — hire-brief</td></tr>
+          <tr><td class="mono">x402-lab-data</td><td>$0.25 per call</td><td><span class="chip chip-demo">GATED-DEPLOY</span></td><td class="small">x402 first contact — lab data (LAB-009 / LAB-010)</td></tr>
+          <tr><td class="mono">x402-tip</td><td>$1.00</td><td><span class="chip chip-demo">GATED-DEPLOY</span></td><td class="small">x402 first contact — tip</td></tr>
+          <tr><td class="mono">— (no entry)</td><td><strong>Pricing being finalised</strong></td><td><span class="chip">Not in registry</span></td><td class="small">SwarmTriage itself — searched 2026-11-14, 0 entries for “triage” / “swarm” in v2026-11-13.1</td></tr>
+        </tbody>
+      </table>
+      <p class="caption">Source for every figure in this table: <span class="mono">~/workspace/your_files/agent-layer-2026-11/PRICES.json</span>, version 2026-11-13.1, read 2026-11-14. Registry law: a price in a state other than LIVE is quotable as a price but is NOT purchasable until its state clears, and the state must be quoted with the price.</p>
+
+      <h3>How a SwarmTriage price will appear here</h3>
+      <ol class="flow-steps">
+        <li><span class="n" aria-hidden="true">1</span><h3>A figure is approved</h3><p class="small">A person with pricing authority approves the exact figure and its terms. Until that happens there is nothing to render — this page will not estimate, round, or “paraphrase” a number into existence.</p></li>
+        <li><span class="n" aria-hidden="true">2</span><h3>It enters the registry</h3><p class="small">The approved figure is added to <span class="mono">PRICES.json</span> as a SwarmTriage entry with an id, a price, and a state (for example LINK-AT-SITTING or LIVE) that says whether it can actually be bought yet.</p></li>
+        <li><span class="n" aria-hidden="true">3</span><h3>This page renders it verbatim</h3><p class="small">The plan cards above swap their “pricing being finalised” slot for the registry figure + state, copied exactly. If the state is not LIVE, the card says so — a quoted price and a purchasable price are different things, and the page keeps them different.</p></li>
+      </ol>
+
+      <h3>Register interest — UI state only</h3>
+      <p class="small">Tell us which shape fits and which desk you would start with. This form records your interest <strong>on this page only</strong> — nothing is sent, saved, or shared, and a reload clears it. When pricing is finalised, the human handoff path is how word will travel: anyone who asks to talk to a human gets a human.</p>
+      <form id="pricingInterestForm">
+        <div class="grid grid-c2">
+          <div>
+            <label class="field-label" for="piEmail">Email</label>
+            <input type="email" id="piEmail" placeholder="you@example.org" autocomplete="email">
+          </div>
+          <div>
+            <label class="field-label" for="piShape">Plan shape</label>
+            <select id="piShape">
+              <option value="Single Desk">Single Desk — one holding desk</option>
+              <option value="Network" selected>Network — desks + packet API</option>
+              <option value="Holdings">Holdings — all four desks</option>
+              <option value="Not sure yet">Not sure yet — help me choose</option>
+            </select>
+          </div>
+        </div>
+        <label class="field-label" for="piDesk">Desk you would start with</label>
+        <select id="piDesk">
+          <option value="agicorp">AGI Corp</option>
+          <option value="fellowship">Fellowship</option>
+          <option value="foundation">Foundation</option>
+          <option value="builderspace">BuilderSpace</option>
+        </select>
+        <label class="field-label" for="piNote">What is piling up? (optional)</label>
+        <textarea id="piNote" rows="3" placeholder="e.g. Grant inbox plus partner email — about a desk a day, and half of it is documents."></textarea>
+        <div class="action-row">
+          <button class="btn btn-on-light" type="submit">Record interest on this page</button>
+        </div>
+        <p class="field-error" id="piError" role="alert" style="display:none"></p>
+      </form>
+      <div id="piOut" aria-live="polite"></div>
+      <ul class="activity-log" id="piLog">
+        <li class="empty-note">No interest recorded yet this session.</li>
+      </ul>
+
+      <h3>Pricing questions, answered straight</h3>
+      <div class="grid grid-c2">
+        <div class="card"><h4>Why is there no price today?</h4><p class="small">Because no SwarmTriage figure has been approved into the registry yet — VERIFIED by a full search of <span class="mono">PRICES.json</span> v2026-11-13.1 on 2026-11-14 (55 items, 0 triage/swarm entries). Showing a number anyway would be inventing one, and this product's whole point is decisions you can point to a source for.</p></div>
+        <div class="card"><h4>Can I buy SwarmTriage now?</h4><p class="small">No — there is no checkout, and this page takes no payment. You can use everything on this page (demo, console, packet try-it) in your browser today, and register interest above so a human can reach you when the registry entry lands.</p></div>
+        <div class="card"><h4>What does GATED-DEPLOY mean on the x402 prices?</h4><p class="small">Per the registry's own state definitions: built and tested; deploy gated (Cloudflare token / sign-in / VPS). The price is quotable, the lane is not callable until deployed. Quoting the price without its state would misstate it, so the state travels with the price everywhere on this page.</p></div>
+        <div class="card"><h4>Will the demo numbers become the live price basis?</h4><p class="small">No. Demo-engine timings on this page are local compute measurements, labelled as such, and are never Drex latency or a pricing input. The cost facts that can ground a future price are the published Nace costs above — and the final figure still needs its own registry entry before it exists here.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="email" aria-labelledby="email-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Email · Slice 6 · Previews only — nothing sends</p>
+      <h2 id="email-h">Email branding — the decision, in your inbox</h2>
+      <p class="lede">SwarmTriage email carries the same contract as the app: every decision arrives with its probabilities and the rule that fired, written from AGI's perspective — gracious, informative — and every template offers a human handoff. Three templates cover the product's whole email life: a <strong>decision digest</strong> that summarises a desk, an <strong>alert</strong> for the one item that cannot wait, and a <strong>welcome</strong> that starts a new desk. All three are previews on this page; nothing here sends, saves, or subscribes anyone.</p>
+
+      <h3>The email identity — one sender, one voice</h3>
+      <div class="grid grid-c2">
+        <div class="card">
+          <span class="chip chip-live">Identity · Verified from agent.json</span>
+          <h3>Who it is from</h3>
+          <ul class="includes">
+            <li><strong>Display name:</strong> SwarmTriage — on the AGI Corp desk (SwarmTriage is an AGI Corp product; the desk switcher below re-voices the preview per holding).</li>
+            <li><strong>Operator:</strong> AGI Corp · Service home: <span class="mono">triage.agicorp.network</span></li>
+            <li><strong>Humans:</strong> <span class="mono">hello@agicorp.network</span> · <strong>Support:</strong> <span class="mono">support@agicorp.network</span> · <strong>Agents:</strong> <span class="mono">agents@agicorp.network</span></li>
+            <li><strong>Signed as:</strong> AGI, for the SwarmTriage team — never a person's name, never a bare “the team”. Outbound identity is AGI only.</li>
+          </ul>
+          <p class="caption">Contact addresses are the service's own, from its machine-readable card (<span class="mono">agent.json</span>, read 2026-11-14) — VERIFIED. No sending address is invented here: the live sending setup is part of the watched live-flip, and these previews send nothing.</p>
+        </div>
+        <div class="card">
+          <span class="chip">Voice · Standing rule</span>
+          <h3>How every template speaks</h3>
+          <ul class="includes">
+            <li><strong>From AGI's perspective</strong> — “I'm AGI” where a sender speaks; gracious and informative, never salesy, never a form letter where a conversation is owed.</li>
+            <li><strong>A human handoff in every template</strong> — body and footer. Anyone who asks for a human leaves the automated thread and is flagged to a person the same day. The name follows the desk: Mike generally, Russell on Foundation matters, a Fellowship steward on the Fellowship desk.</li>
+            <li><strong>Probabilities shown, never hidden</strong> — an email decision carries the same five answers and the exact rule text as the console and the packet feed.</li>
+            <li><strong>Mode labelled</strong> — until a live Drex call is verified, every example below is marked DEMO ENGINE, in the email itself.</li>
+            <li><strong>Suppression is absolute</strong> — an unsubscribed address is never re-queued, and every footer says how to stop mail.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Header art — Adobe Express, spec 04</h3>
+      <div class="grid grid-c2">
+        <div class="card">
+          <span class="chip chip-demo">STAGED · Spec 04</span>
+          <h3>One design, three exports</h3>
+          <p class="small">Canvas <strong>1200 × 300</strong> (2× of the 600 px email width) for digest + welcome, plus a compact <strong>1200 × 160</strong> variant for alerts. Export ≤ 60 KB. Design: ink <span class="mono">#0B1E3A</span> → deep green <span class="mono">#17352A</span> field, thin gold rule <span class="mono">#E8C85A</span> along the bottom edge, wordmark left in paper <span class="mono">#F5F1E6</span>, template tag right (“Decision digest” / “Alert” / “Welcome”). The banners inside the previews below are CSS placeholders holding that exact design's place — labelled STAGED, because the Adobe account is being set up today and no asset is claimed before it exists. Full spec: <span class="mono">app/adobe-assets/04-email-header-art.md</span>.</p>
+        </div>
+        <div class="card">
+          <span class="chip">Email build rules</span>
+          <h3>Reads fully with images off</h3>
+          <ul class="includes">
+            <li>Wordmark + template tag are the <em>only</em> words in the art. All substantive copy is real text in the body — use the plain-text view below to prove it.</li>
+            <li>Single column, 600 px design width, system font stacks, tap targets ≥ 44 px — the same DS v2 discipline as the app.</li>
+            <li>Alt text at production: “SwarmTriage — [template tag]” per variant (spec 04).</li>
+            <li>Subject + preheader are part of the template, shown above every preview — they carry the decision, not a teaser.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Preview the templates</h3>
+      <p class="small">Pick a template, a desk, and a view. Personalisation is page state only — the desk changes the greeting's desk name and who the human handoff names, exactly as the live templates will.</p>
+      <div class="sample-row" id="emailTplSwitch" role="group" aria-label="Email template switcher">
+        <button class="sample-btn on" type="button" data-tpl="digest" aria-pressed="true">Decision digest</button>
+        <button class="sample-btn" type="button" data-tpl="alert" aria-pressed="false">Alert — act today</button>
+        <button class="sample-btn" type="button" data-tpl="welcome" aria-pressed="false">Welcome</button>
+      </div>
+      <div class="grid grid-c2">
+        <div>
+          <label class="field-label" for="emailDesk">Desk (holding scope)</label>
+          <select id="emailDesk">
+            <option value="agicorp" selected>AGI Corp</option>
+            <option value="fellowship">Fellowship</option>
+            <option value="foundation">Foundation</option>
+            <option value="builderspace">BuilderSpace</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="emailName">Recipient first name (optional)</label>
+          <input type="text" id="emailName" placeholder="e.g. Sam" autocomplete="off">
+        </div>
+      </div>
+      <div class="sample-row" role="group" aria-label="Email view">
+        <button class="sample-btn on" type="button" id="emailViewDesigned" aria-pressed="true">Designed view</button>
+        <button class="sample-btn" type="button" id="emailViewText" aria-pressed="false">Plain-text view</button>
+      </div>
+      <p class="caption" id="emailViewNote" aria-live="polite"></p>
+      <p class="small" id="emailNote" aria-live="polite"></p>
+
+      <!-- ===== Template 1: Decision digest ===== -->
+      <article class="email-panel" id="tpl-digest" aria-label="Decision digest template preview">
+        <div class="email-meta">
+          <p><strong>From:</strong> SwarmTriage · <strong>Subject:</strong> Your <span data-desk-name>AGI Corp</span> digest — 10 decisions, 4 need a person</p>
+          <p class="caption">Preheader: Every decision with its probabilities and the rule that fired. Two handoffs and two act-todays are waiting for a person.</p>
+        </div>
+        <div class="tpl-designed">
+          <div class="email-frame">
+            <div class="email-header-mock" role="img" aria-label="SwarmTriage — Decision digest (header art placeholder, Adobe Express spec 04, STAGED)">
+              <span class="ehm-brand">Swarm<span>Triage</span></span>
+              <span class="ehm-tag">Decision digest</span>
+              <span class="chip chip-demo ehm-chip">Spec 04 · STAGED</span>
+            </div>
+            <div class="email-body">
+              <p>Hello <span data-recipient-name>there</span>,</p>
+              <p>I'm AGI, writing for the SwarmTriage team. Here is what the swarm gathered on the <strong><span data-desk-name>AGI Corp</span></strong> desk and what Drex decided — every item with its probabilities and the rule that fired, so nothing here asks for blind trust. This digest is a worked example on the labelled demo engine; the same layout carries live decisions the moment live mode is verified.</p>
+              <table class="results" aria-label="Digest summary — demo inbox of 10 items">
+                <thead><tr><th>Action</th><th>Items</th><th>What it means</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Human handoff</strong></td><td>2</td><td class="small">A person follows up personally; the agent has left the thread.</td></tr>
+                  <tr><td><strong>Act today</strong></td><td>2</td><td class="small">Time-bound — surfaced today with the date that matters.</td></tr>
+                  <tr><td><strong>Conversational reply</strong></td><td>2</td><td class="small">A real reply in conversation, drafted for a person's approval.</td></tr>
+                  <tr><td><strong>Suppress</strong></td><td>2</td><td class="small">Removed from all queues. Never contacted again.</td></tr>
+                  <tr><td><strong>File / no action</strong></td><td>2</td><td class="small">No threshold crossed — filed, no outreach.</td></tr>
+                </tbody>
+              </table>
+              <p class="caption">Counts are the console's demo inbox (10 items), decided live on this page by the demo engine — VERIFIED by execution in this build, 2026-11-14: exactly 2 of every action.</p>
+              <h4>The two that need a person first</h4>
+              <p><strong>1 · Human handoff — reporter interview.</strong> wants_human 0.88 · is_interested 0.74 · category interview (0.81) · urgency 2 (0.77). Rule: <em>Wants-human probability ≥ 0.70 — a human follows up personally, agent leaves the thread.</em></p>
+              <p><strong>2 · Act today — Pollination Project seed grant.</strong> category grant (0.81) · urgency 2 (0.77) · closes Nov 30, 2026, 11:59 PM ET. Rule: <em>Grant with a deadline and urgency ≥ 2 — surface today with the closing date.</em> Its designed decision card is produced at the Adobe Express station (spec 02, STAGED).</p>
+              <p>Open the console to review, approve, edit, or send back any of these — a person stays in charge of every send. And if you would rather talk this through with a human than read a digest, just reply and say so: <strong><span data-handoff-name>Mike</span></strong> will pick it up personally, and the automated thread steps aside.</p>
+              <p>With appreciation,<br>— AGI, for the SwarmTriage team (AGI Corp)</p>
+            </div>
+            <div class="email-footer">
+              <p>You're receiving this digest because this desk is set to send one. Mode: DEMO ENGINE example — numbers are demo-engine numbers, never Drex results, until live mode is verified. To stop these emails, reply “unsubscribe” — suppression is absolute and takes effect across every queue. Prefer a person? Reply and ask for a human, or write to <span class="mono">hello@agicorp.network</span>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="tpl-text" hidden><div class="email-text">SwarmTriage — Decision digest [header art: Adobe Express spec 04, STAGED]
+
+Hello <span data-recipient-name>there</span>,
+
+I'm AGI, writing for the SwarmTriage team. Here is what the swarm
+gathered on the <span data-desk-name>AGI Corp</span> desk and what Drex decided — every item
+with its probabilities and the rule that fired. This digest is a
+worked example on the labelled demo engine.
+
+Summary (demo inbox, 10 items — 2 of every action):
+- Human handoff: 2 — a person follows up; the agent left the thread.
+- Act today: 2 — time-bound, surfaced today.
+- Conversational reply: 2 — drafted for a person's approval.
+- Suppress: 2 — removed from all queues, never contacted again.
+- File / no action: 2 — no threshold crossed.
+
+Needs a person first:
+1. Human handoff — reporter interview. wants_human 0.88,
+   is_interested 0.74, category interview (0.81), urgency 2 (0.77).
+   Rule: wants-human probability &gt;= 0.70.
+2. Act today — Pollination Project seed grant. category grant
+   (0.81), urgency 2 (0.77), closes Nov 30, 2026, 11:59 PM ET.
+   Rule: grant with a deadline and urgency &gt;= 2.
+
+If you would rather talk with a human, reply and say so —
+<span data-handoff-name>Mike</span> will pick it up personally.
+
+— AGI, for the SwarmTriage team (AGI Corp)
+Mode: DEMO ENGINE example. Unsubscribe: reply "unsubscribe".
+Humans: hello@agicorp.network</div></div>
+      </article>
+
+      <!-- ===== Template 2: Alert ===== -->
+      <article class="email-panel" id="tpl-alert" aria-label="Alert template preview" hidden>
+        <div class="email-meta">
+          <p><strong>From:</strong> SwarmTriage · <strong>Subject:</strong> Act today: Pollination Project seed grant closes Nov 30</p>
+          <p class="caption">Preheader: One item, one deadline. Drex routed it ACT TODAY — here is the decision and the rule that fired.</p>
+        </div>
+        <div class="tpl-designed">
+          <div class="email-frame">
+            <div class="email-header-mock compact" role="img" aria-label="SwarmTriage — Alert (compact header art placeholder, Adobe Express spec 04, STAGED)">
+              <span class="ehm-brand">Swarm<span>Triage</span></span>
+              <span class="ehm-tag">Alert</span>
+              <span class="chip chip-demo ehm-chip">Spec 04 compact · STAGED</span>
+            </div>
+            <div class="email-body">
+              <p>Hello <span data-recipient-name>there</span>,</p>
+              <p>I'm AGI, writing for the SwarmTriage team with one item from the <strong><span data-desk-name>AGI Corp</span></strong> desk that should not wait for the digest:</p>
+              <div class="decision-panel today">
+                <p style="margin:0"><strong>ACT TODAY — Pollination Project seed grant</strong></p>
+                <p class="small" style="margin:6px 0 0">Applications close <strong>Nov 30, 2026, 11:59 PM ET</strong>. Awards up to $1,000 for early-stage changemakers. Referee required. (Item text verbatim from the decision core's sample msg-3.)</p>
+                <p class="small" style="margin:6px 0 0">wants_human 0.06 · is_interested 0.18 · is_unsubscribe 0.06 · category <strong>grant</strong> (confidence 0.81) · urgency <strong>2</strong> (confidence 0.77)<br>Rule that fired: <em>Grant with a deadline and urgency ≥ 2 — surface to Mike today with the closing date.</em><br>Mode: DEMO ENGINE — not a Drex result.</p>
+              </div>
+              <p>What happens next is a person's call: open the console to approve the follow-up, edit it, or send it back. The designed one-page summary of this decision is produced at the Adobe Express station (decision-card spec 02, STAGED) when a person approves it — an alert never sends itself onward.</p>
+              <p>If you'd rather handle this with a human directly, reply to this alert and say so — <strong><span data-handoff-name>Mike</span></strong> takes it from there, and I step out of the thread.</p>
+              <p>— AGI, for the SwarmTriage team (AGI Corp)</p>
+            </div>
+            <div class="email-footer">
+              <p>Alerts fire only on an ACT TODAY route — one item, one reason, never a bundle. Mode: DEMO ENGINE example. To stop alerts from this desk, reply “unsubscribe” — suppression is absolute. Humans: <span class="mono">hello@agicorp.network</span> · Support: <span class="mono">support@agicorp.network</span>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="tpl-text" hidden><div class="email-text">SwarmTriage — Alert [compact header art: spec 04, STAGED]
+
+Hello <span data-recipient-name>there</span>,
+
+I'm AGI, writing for the SwarmTriage team with one item from the
+<span data-desk-name>AGI Corp</span> desk that should not wait for the digest:
+
+ACT TODAY — Pollination Project seed grant
+Closes Nov 30, 2026, 11:59 PM ET. Awards up to $1,000. Referee
+required. wants_human 0.06 · is_interested 0.18 · is_unsubscribe
+0.06 · category grant (0.81) · urgency 2 (0.77).
+Rule: grant with a deadline and urgency &gt;= 2 — surface today
+with the closing date. Mode: DEMO ENGINE — not a Drex result.
+
+A person decides what happens next in the console. If you'd
+rather handle this with a human, reply and say so — <span data-handoff-name>Mike</span>
+takes it from there.
+
+— AGI, for the SwarmTriage team (AGI Corp)
+Humans: hello@agicorp.network · Support: support@agicorp.network</div></div>
+      </article>
+
+      <!-- ===== Template 3: Welcome ===== -->
+      <article class="email-panel" id="tpl-welcome" aria-label="Welcome template preview" hidden>
+        <div class="email-meta">
+          <p><strong>From:</strong> SwarmTriage · <strong>Subject:</strong> Welcome to SwarmTriage — your <span data-desk-name>AGI Corp</span> desk is ready</p>
+          <p class="caption">Preheader: Agents gather, Drex decides, you stay in charge. Here's how your desk works and how to reach a human any time.</p>
+        </div>
+        <div class="tpl-designed">
+          <div class="email-frame">
+            <div class="email-header-mock" role="img" aria-label="SwarmTriage — Welcome (header art placeholder, Adobe Express spec 04, STAGED)">
+              <span class="ehm-brand">Swarm<span>Triage</span></span>
+              <span class="ehm-tag">Welcome</span>
+              <span class="chip chip-demo ehm-chip">Spec 04 · STAGED</span>
+            </div>
+            <div class="email-body">
+              <p>Welcome, <span data-recipient-name>there</span> —</p>
+              <p>I'm AGI, writing for the SwarmTriage team. Your <strong><span data-desk-name>AGI Corp</span></strong> desk is ready, and I'm glad you're here. A short orientation, so the first digest never surprises you:</p>
+              <ol style="margin:10px 0;padding-left:22px">
+                <li style="margin:6px 0"><strong>Agents gather.</strong> Reader, Extractor and Skeptic agents read each messy item; documents pass through NDI into grounded text first. No gather agent ever decides.</li>
+                <li style="margin:6px 0"><strong>Drex decides.</strong> Five typed questions in one call — three probabilities, a category, an urgency score — then deterministic rules act in order, and the rule that fired is always shown to you.</li>
+                <li style="margin:6px 0"><strong>You stay in charge.</strong> Approve, edit, or send back any decision in the console. Drafts are drafted for your approval; designed cards and one-pagers are produced at the Adobe Express station only when a decision calls for one.</li>
+              </ol>
+              <p>Two things worth knowing on day one. First, the app currently runs in labelled <strong>demo-engine mode</strong> — the exact decision logic, on a stand-in, until a live Drex call is verified — and every email will keep labelling its mode until that changes. Second, pricing is being finalised in the price registry and no figure will ever be quoted to you that isn't in it.</p>
+              <p>And the standing offer, in this email and every one after it: if you would rather talk with a human at any point, just reply and ask — <strong><span data-handoff-name>Mike</span></strong> will reach out personally, and the automated thread steps aside. Questions about the desk itself are welcome at <span class="mono">support@agicorp.network</span>.</p>
+              <p>With appreciation,<br>— AGI, for the SwarmTriage team (AGI Corp)</p>
+            </div>
+            <div class="email-footer">
+              <p>You received this welcome because this desk was created for you in SwarmTriage. Mode note: demo-engine mode until a live Drex call is verified. To stop SwarmTriage email, reply “unsubscribe” — suppression is absolute. Humans: <span class="mono">hello@agicorp.network</span>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="tpl-text" hidden><div class="email-text">SwarmTriage — Welcome [header art: Adobe Express spec 04, STAGED]
+
+Welcome, <span data-recipient-name>there</span> —
+
+I'm AGI, writing for the SwarmTriage team. Your <span data-desk-name>AGI Corp</span>
+desk is ready.
+
+1. Agents gather — Reader, Extractor and Skeptic read each item;
+   documents pass through NDI first. No gather agent decides.
+2. Drex decides — five typed questions in one call, then rules
+   act in order and the rule that fired is always shown.
+3. You stay in charge — approve, edit, or send back any decision
+   in the console.
+
+The app runs in labelled demo-engine mode until a live Drex call
+is verified, and every email labels its mode. Pricing is being
+finalised in the registry — no figure is quoted outside it.
+
+If you would rather talk with a human at any point, reply and
+ask — <span data-handoff-name>Mike</span> will reach out personally.
+
+— AGI, for the SwarmTriage team (AGI Corp)
+Humans: hello@agicorp.network · Support: support@agicorp.network</div></div>
+      </article>
+
+      <div class="notice" role="note">
+        <strong class="lead">Sending rails — what these previews are not</strong>
+        These templates send nothing from this page and no live sending is wired in this build. In the live service, email goes out only behind a person's approval, inside mailbox caps, with suppression checked first — and the Adobe header art ships only once spec 04 flips from STAGED to VERIFIED with a produced file on record. A template going live is a watched-batch decision, never this loop's.
+      </div>
+    </div>
+  </section>
+
+  <section id="workspace" aria-labelledby="workspace-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Workspace · Slice 7 · Scaffold only — no real auth</p>
+      <h2 id="workspace-h">Accounts + workspaces — the shape, before the backend</h2>
+      <p class="lede">A world-class app needs a clear account model before it needs a login server. This section builds that model in full — the sign-in shapes, how an account holds a workspace, how a workspace holds desks (one per corporate holding), and what each role can and cannot do — as labelled scaffolding. There is no auth backend in this build: no form here creates an account, starts a session, sends a link, or stores a password.</p>
+
+      <div class="notice notice-warning" role="note">
+        <strong class="lead">Scaffold only — nothing here authenticates</strong>
+        Every form in this section validates its own shape on this page and stops. Passwords are never stored, sent, or checked beyond length; invite and magic-link shapes send no email; the role preview grants nothing. The live backend — server-side sessions, hashed credentials or magic-link tokens, and permission enforcement — is a watched live-flip item, listed at the foot of this section. Until it lands, the demo, console, agent feed, pricing and email previews on this page need no account at all.
+      </div>
+
+      <h3>Sign in — the shape the live form will keep</h3>
+      <p class="small">Two entry shapes, one form: email + password, and a single-use magic link to the same address. A social / SSO row is shown as a disabled shape with its state named, never as a working button — per the design system, an unavailable route is never rendered as a working one. In the live service the password shape posts to a server-side session endpoint; the browser never holds a service key, and keys stay referenced by name only.</p>
+      <div class="grid grid-c2">
+        <div class="card ws-signin-card">
+          <span class="chip chip-demo">Scaffold · No backend</span>
+          <h3>Sign in to SwarmTriage</h3>
+          <form id="wsSigninForm" novalidate>
+            <label class="field-label" for="wsEmail">Email (required)</label>
+            <input type="email" id="wsEmail" placeholder="you@example.org" autocomplete="email">
+            <label class="field-label" for="wsPassword">Password (required)</label>
+            <p class="field-help">Scaffold rule only: at least 8 characters exercises the form. No password is checked against anything in this build.</p>
+            <input type="text" id="wsPassword" placeholder="At least 8 characters — shape only" autocomplete="off">
+            <p class="field-error" id="wsSigninError" role="alert" style="display:none"></p>
+            <div class="action-row">
+              <button class="btn btn-on-light" type="submit">Check the sign-in shape</button>
+              <button class="btn btn-secondary" type="button" id="wsMagicBtn" style="color:var(--text);border-color:var(--line-strong)">Email me a magic link — shape</button>
+            </div>
+          </form>
+          <div id="wsSigninOut" aria-live="polite"></div>
+          <div class="ws-sso-row" aria-label="Single sign-on shapes">
+            <button class="btn btn-secondary" type="button" disabled aria-disabled="true" style="color:var(--text-3);border-color:var(--line)">Continue with Google — not wired in scaffold</button>
+            <button class="btn btn-secondary" type="button" disabled aria-disabled="true" style="color:var(--text-3);border-color:var(--line)">Continue with GitHub — not wired in scaffold</button>
+          </div>
+          <p class="caption">No account yet? There is no sign-up backend to create one with in this build — the create-workspace shape is the model card opposite, and live account creation arrives with the auth flip. Forgot a password? There is no password on file here to reset; the live reset flow is a server-side, single-use link flow of the same shape as the magic link above.</p>
+        </div>
+        <div class="card">
+          <span class="chip">Create workspace · Shape</span>
+          <h3>What creating a workspace will mean</h3>
+          <ul class="includes">
+            <li><strong>One account, one workspace to start.</strong> The account that creates the workspace becomes its Owner. Additional workspaces are a later, separate shape — this scaffold models the first one completely rather than sketching many.</li>
+            <li><strong>A workspace starts with one desk.</strong> The creator picks the starting holding desk (AGI Corp is the default — SwarmTriage is an AGI Corp product); the other desks are added deliberately, one holding scope at a time, never all at once by accident.</li>
+            <li><strong>Names are the holding's names.</strong> Desks are named Fellowship · Foundation · AGI Corp · BuilderSpace — the corporate holdings — not free-text team names that would blur project separation.</li>
+            <li><strong>No billing step in the scaffold.</strong> Pricing is being finalised in the registry (Slice 5), so workspace creation carries no price, no checkout, and no card field — and will not until a registry entry exists to quote.</li>
+            <li><strong>The demo needs no workspace.</strong> Everything above this section runs in the browser with no account. A workspace is for the live service: saved inboxes, real members, and enforced roles.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>The workspace model — account → workspace → desk → item</h3>
+      <p class="small">Four levels, each with one job. The model is the Reach Holding Mode desk structure made explicit: separation between holdings is structural, not a filter someone can forget to apply.</p>
+      <ol class="flow-steps">
+        <li><span class="n" aria-hidden="true">1</span><h3>Account</h3><p class="small">A person (email identity) or a registered agent (agent-net identity: name · wallet · email · home — wallet signs data, never transactions). An account alone sees nothing; access comes only through workspace membership.</p></li>
+        <li><span class="n" aria-hidden="true">2</span><h3>Workspace</h3><p class="small">The container a team works in: its members, its desks, its suppression list, and its handoff queue. Suppression lives at workspace level so an unsubscribed address is suppressed on every desk at once — absolute, with no per-desk exception.</p></li>
+        <li><span class="n" aria-hidden="true">3</span><h3>Desk — one per holding</h3><p class="small">A desk is one corporate holding's scope: its inbox, its console, its packet project. One holding scope per packet, per item, per decision — cross-holding work is split into separate packets, never mixed (agent-net PROTOCOL §9).</p></li>
+      </ol>
+      <div class="grid grid-c2">
+        <div class="card"><span class="chip">Level 4</span><h3>Item + decision packet</h3><p class="small">Work arrives on a desk as an item, is decided by the swarm (gather → Drex → rules, Slices 2–4), and its decision lives as a hash-chained packet in that desk's scope. Review actions (approve / edit / send back) act on the packet; the packet — not chat — is the record that a decision happened.</p></div>
+        <div class="card"><span class="chip">Separation rule</span><h3>What never crosses a desk boundary</h3><p class="small">Contacts, decisions, and claims stay in their holding's scope. A packet holds pointers, not copies of another project's content, and never secrets or personal contact data — credentials are referenced by name only. Fellowship surfaces carry no commercial components; that rule is a desk property, not a per-post choice.</p></div>
+      </div>
+
+      <h3>Desks — preview the model</h3>
+      <p class="small">The four desks, read live from <span class="mono">app/config.js</span> — the same source the console's working switcher uses. Pick a desk to see its scope, its model note, and who its human handoff names. The handoff names follow the standing voice rule: Mike generally, Russell on Foundation matters, a Fellowship steward on the Fellowship desk.</p>
+      <div class="desk-switch" id="wsDeskSwitch" role="group" aria-label="Workspace desk model preview"></div>
+      <div class="card" id="wsDeskDetail" aria-live="polite"></div>
+
+      <h3>Roles — who can do what</h3>
+      <p class="small">Five roles: four for people, one for agents. The table is the contract the live backend will enforce; the preview below it lets you walk through each role on the desk you picked above. Two rails hold for every role, including Owner: suppression is absolute (no role re-queues a suppressed address), and a packet never authorises an external effect by itself — sends run under the approval class the packet records.</p>
+      <table class="results" aria-label="Role permissions matrix">
+        <thead><tr><th>Capability</th><th>Owner</th><th>Steward</th><th>Reviewer</th><th>Viewer</th><th>Agent</th></tr></thead>
+        <tbody>
+          <tr><td>View desks</td><td>All</td><td>In scope</td><td>Assigned</td><td>Assigned</td><td>Own packets only</td></tr>
+          <tr><td>Approve / edit / send back</td><td>Yes — any desk</td><td>Yes — in scope</td><td>Yes — assigned</td><td>No</td><td>No</td></tr>
+          <tr><td>Submit an item / packet</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Demo only</td><td>Yes — API only</td></tr>
+          <tr><td>Invite members</td><td>Yes — any role</td><td>Yes — Reviewer / Viewer, in scope</td><td>No</td><td>No</td><td>No</td></tr>
+          <tr><td>Manage suppression + handoffs</td><td>Yes</td><td>Yes — in scope</td><td>Flag handoff only</td><td>No</td><td>No</td></tr>
+          <tr><td>Delete workspace / transfer ownership</td><td>Yes — only Owner</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+        </tbody>
+      </table>
+      <div class="grid grid-c2">
+        <div>
+          <label class="field-label" for="wsRoleSelect">Preview as role</label>
+          <select id="wsRoleSelect">
+            <option value="owner">Owner</option>
+            <option value="steward">Steward (Admin)</option>
+            <option value="reviewer" selected>Reviewer (Operator)</option>
+            <option value="viewer">Viewer</option>
+            <option value="agent">Agent (service identity)</option>
+          </select>
+          <p class="field-help">The preview follows the desk picked in the desk model above. It explains permissions; it does not grant or enforce them.</p>
+        </div>
+        <div class="card" id="wsRoleOut" aria-live="polite"></div>
+      </div>
+
+      <h3>Members + invites — shapes only</h3>
+      <p class="small">A workspace's member list is people + agents together, each with a role and a desk scope. The list below is a labelled demo list — role-shaped entries, not real accounts — because no backend exists in this build to hold real members. The invite form beside it shapes an invite and records it on this page only.</p>
+      <div class="grid grid-c2">
+        <div class="card">
+          <span class="chip chip-demo">Demo member list · No real accounts</span>
+          <h3>Members of this workspace (demo)</h3>
+          <ul class="includes">
+            <li><strong>Workspace Owner</strong> — Owner · all desks <span class="caption">(demo entry — the live Owner is the account that creates the workspace)</span></li>
+            <li><strong>Foundation Steward</strong> — Steward · Foundation desk <span class="caption">(demo entry — Foundation handoffs name Russell)</span></li>
+            <li><strong>Desk Reviewer</strong> — Reviewer · AGI Corp desk <span class="caption">(demo entry)</span></li>
+            <li><strong>Desk Viewer</strong> — Viewer · BuilderSpace desk <span class="caption">(demo entry)</span></li>
+            <li><strong>AGI</strong> — Agent · all desks, packet API only <span class="caption">(service identity — submits and reads back decision packets; never approves a send)</span></li>
+            <li><strong>Triage swarm</strong> — Agent · per-desk, claim-by-commit <span class="caption">(service identity — gather agents + the Drex routing step; no gather agent decides)</span></li>
+          </ul>
+          <p class="caption">No email addresses are listed for demo members: a member list in the live service is private workspace data, and this public scaffold does not invent addresses for people.</p>
+        </div>
+        <div class="card">
+          <span class="chip chip-demo">Invite shape · Sends nothing</span>
+          <h3>Invite a member</h3>
+          <form id="wsInviteForm" novalidate>
+            <label class="field-label" for="wsInviteEmail">Invitee email (required)</label>
+            <input type="email" id="wsInviteEmail" placeholder="person@example.org" autocomplete="off">
+            <label class="field-label" for="wsInviteDesk">Desk scope</label>
+            <select id="wsInviteDesk">
+              <option value="agicorp">AGI Corp</option>
+              <option value="fellowship">Fellowship</option>
+              <option value="foundation">Foundation</option>
+              <option value="builderspace">BuilderSpace</option>
+            </select>
+            <label class="field-label" for="wsInviteRole">Role</label>
+            <select id="wsInviteRole">
+              <option value="reviewer" selected>Reviewer (Operator)</option>
+              <option value="steward">Steward (Admin)</option>
+              <option value="viewer">Viewer</option>
+              <option value="owner">Owner — transfer-level, Owner only in live service</option>
+            </select>
+            <p class="field-error" id="wsInviteError" role="alert" style="display:none"></p>
+            <div class="action-row">
+              <button class="btn btn-on-light" type="submit">Shape the invite on this page</button>
+            </div>
+          </form>
+          <div id="wsInviteOut" aria-live="polite"></div>
+          <ul class="activity-log" id="wsInviteLog">
+            <li class="empty-note">No invites shaped yet this session.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Session activity — this page only</h3>
+      <p class="small">Every scaffold action in this section, newest last in the code and newest first here. This log is the section's own record that nothing left the page; a reload clears it.</p>
+      <ul class="activity-log" id="wsLog">
+        <li class="empty-note">No scaffold actions yet this session. Submit the sign-in shape or shape an invite and it will be recorded here.</li>
+      </ul>
+
+      <div class="notice" role="note">
+        <strong class="lead">What the live auth flip will need — the checklist this scaffold specifies</strong>
+        1) A server-side account store (email identity, credentials hashed server-side or magic-link tokens single-use + expiring — the browser never holds a credential store). 2) Server-side sessions with expiry and revocation; sign-out that actually revokes. 3) Permission enforcement on the server for the matrix above — the UI preview is never the enforcement. 4) Invite issue / accept / expiry as server state, with the Owner-only rule for Owner assignment enforced there. 5) Agent identities verified against the agent-net registry (signed packet header), separate from human sign-in. 6) A person's approval before any of it ships — accounts are a watched-batch decision, like the live-Drex flip, never this loop's.
+      </div>
+
+      <h3>Workspace questions, answered straight</h3>
+      <div class="grid grid-c2">
+        <div class="card"><h4>Can I create an account today?</h4><p class="small">No — and this section will not pretend otherwise. There is no auth backend in this build, so there is nothing to create an account in. Everything on this page (demo, console, packet try-it, email previews) works without one. When the backend lands in the watched flip, this same form is the sign-in form — the shape does not change.</p></div>
+        <div class="card"><h4>Why model desks by holding instead of by team?</h4><p class="small">Because project separation in the agentic network is structural: one holding scope per packet. A desk per corporate holding (Fellowship · Foundation · AGI Corp · BuilderSpace) makes that separation the container itself, so work cannot be mixed by accident — a team-shaped model would make separation a habit instead of a structure.</p></div>
+        <div class="card"><h4>Can an agent be a workspace member?</h4><p class="small">Yes — as a service identity, with the narrowest role in the matrix: submit via the packet API, read back its own decision packets, claim by commit. An agent never holds a human role, never approves a send, and never acts outside its registered holding scope. Identity is wallet-based in agent-net; the wallet signs data, never transactions.</p></div>
+        <div class="card"><h4>What happens to my data in this scaffold?</h4><p class="small">Nothing — literally. No form in this section sends, saves, or shares anything; the password field is read only for its length against the scaffold's own rule; a reload clears every log and record on the page. That is stated at each form, not just here, because a scaffold that collects quietly would teach the wrong expectation for the live service.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="polish" aria-labelledby="polish-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Polish · Slice 8 · Audited 2026-11-14</p>
+      <h2 id="polish-h">Polish pass — checked, measured, fixed</h2>
+      <p class="lede">The last build slice audited this whole page against the design system: accessibility, performance budgets, and every number on every screen against its source. What was found and what changed is stated here; the full cross-check table lives in the build folder's audit record.</p>
+      <div class="grid grid-c3">
+        <div class="card">
+          <h3>Accessibility — WCAG 2.2 AA</h3>
+          <ul class="includes">
+            <li><strong>Tap targets:</strong> every interactive element measures ≥ 44px (primary actions ≥ 48px) — buttons, desk switchers, inbox rows, menu rows, form fields. The one prose-styled button (the registry recheck in Pricing) had its tap area enlarged to match.</li>
+            <li><strong>Text floors:</strong> two sizes sat below the design system's floors and were raised — chain-node hashes from 11.8px to the 12.5px chip floor, hero-stat captions to the 13.1px caption size. No text on the page renders under 12px.</li>
+            <li><strong>Contrast:</strong> every text colour pair on the page is one of the design system's measured AA pairs (§9.1) — no new pair was introduced in any slice.</li>
+            <li><strong>Focus:</strong> a 3px focus ring on every interactive element, gold on dark sections, teal on light; the skip link is the first focusable element; the mobile menu moves focus in and returns it on close.</li>
+            <li><strong>Tables on phones:</strong> results tables now scroll inside their own region at small widths — the page itself never scrolls sideways.</li>
+            <li><strong>Motion:</strong> under reduced-motion the demo trace is instant and all transitions are off.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Performance — DS v2 §11 budgets</h3>
+          <ul class="includes">
+            <li><strong>JavaScript, fixed:</strong> Slices 1–7 loaded every view's script up front — 68,209 bytes against a 30 KB budget. View scripts now load on approach (the loader lives in the shell): up-front JS is the shell's <strong>14,204 bytes</strong>, and shell + any single view stays under budget too — the largest pairing, workspace, is 27,543 bytes.</li>
+            <li><strong>CSS:</strong> 20,925 bytes against a 60 KB budget.</li>
+            <li><strong>HTML:</strong> under the 120 KB template budget (final measured figure in the audit record).</li>
+            <li><strong>Fonts:</strong> 0 webfont downloads — system stacks only.</li>
+            <li><strong>Images:</strong> none ship yet — the hero art is a STAGED Adobe Express spec, so there is no eager image and nothing to shift layout.</li>
+            <li><strong>Requests:</strong> 6 on first load (page, 2 stylesheets, 3 shell scripts) against a budget of 25; a view script is one further request, only when its section is approached.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Numbers — cross-checked</h3>
+          <ul class="includes">
+            <li><strong>Decision numbers:</strong> the core was re-executed — all 5 samples route to their stated actions with the stated probabilities (0.88 / 0.82 / 0.74 / 0.18 / 0.06), confidences (0.81 / 0.77) and thresholds (0.70 / 0.70 / 0.60). The console's 10 demo items again give exactly 2 of every action.</li>
+            <li><strong>Timing:</strong> the 0.0011 ms proof figure is the dated 2026-11-14 measurement with its method stated beside it; re-measurement in this pass landed in the same microsecond range — it remains labelled local demo-engine compute, never Drex latency. The 142.6 ms figure remains labelled as the sponsor docs' illustrative call, via the Drexathon plan.</li>
+            <li><strong>Prices:</strong> the registry was searched again in full — 55 items, still 0 triage/swarm entries, so Pricing still renders “being finalised”; the only figures quoted ($0.10 / $0.25 / $1.00, GATED-DEPLOY) match the registry verbatim. The two excluded-pending-ruling items appear nowhere in the app.</li>
+            <li><strong>Packets:</strong> all 4 real agent-net packets' content and chain hashes and the Merkle root match the repo's queue index exactly.</li>
+            <li><strong>Grant facts:</strong> Nov 30, 2026, 11:59 PM ET and up to $1,000 match the sample item text everywhere they appear.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Design pack applied — maintenance M3</h3>
+          <ul class="includes">
+            <li><strong>Threshold ticks (viz-bars):</strong> every decision probability bar — in the live demo above and in the console — now carries a tick at its rule threshold (0.70 unsubscribe / wants-human · 0.60 interest), the threshold in its text label, and a legend under the bars. A bar without its threshold is decoration; with it, it is an explanation. Bar animation is now width-only, 240ms, per the shared viz spec.</li>
+            <li><strong>One token file:</strong> the shared data-visualisation tokens are exported as <span class="mono">app/viz-tokens.json</span> — colour by holding, status colours, evidence encodings, type floors — so the sites, dashboards and the 3D data view draw from one palette.</li>
+            <li><strong>Evidence encoding, demonstrated on this app's own number classes:</strong></li>
+          </ul>
+          <div class="bar-row"><span>VERIFIED · solid</span><span class="ev-track"><span class="ev-fill ev-verified"></span></span><strong>5/5</strong></div>
+          <div class="bar-row"><span>REPORTED · hatched</span><span class="ev-track"><span class="ev-fill ev-reported"></span></span><strong>142.6 ms</strong></div>
+          <div class="bar-row"><span>HYPOTHESIS · dashed</span><span class="ev-track"><span class="ev-fill ev-hypothesis"></span></span><strong>none drawn</strong></div>
+          <p class="small">Solid = verified by execution (the 5/5 route check). Hatched = reported (the sponsor docs' 142.6 ms figure). Dashed = hypothesis — this app currently draws no hypothesis-class figure, so the third track carries no fill, only the encoding. A number without an evidence state does not get drawn.</p>
+          <p class="small"><strong>JS budget:</strong> the design pack's SwarmTriage item (44,592 bytes against the 30 KB shell budget) was written before Slice 8; the lazy loader closed it — up-front shell JS is 14,204 bytes and shell + any single view stays under 30 KB, re-measured in M3. Full record: <span class="mono">M3-DESIGN-PACK.md</span> in the build folder.</p>
+        </div>
+      </div>
+      <div class="notice" role="note">
+        <strong class="lead">What this pass did not verify</strong>
+        Visual rendering in a real browser was not available in the build environment, in this pass or any earlier one. Syntax, element wiring, tag balance, the decision core, and each view script's logic were verified by execution (including headless runs); the lazy loader was exercised the same way. A visual pass in a browser remains on the live-flip checklist — it is recorded as a gap, not passed over.
+      </div>
+    </div>
+  </section>
+
+  <section id="states" aria-labelledby="states-h">
+    <div class="wrap">
+      <p class="eyebrow" style="color:var(--gold-text)">Design system · States</p>
+      <h2 id="states-h">Every surface ships its states</h2>
+      <p class="lede">Empty, loading, error and success are components, not afterthoughts (DS v2 §7.13). Try each pattern:</p>
+      <div class="action-row">
+        <button class="btn btn-secondary" id="demoEmpty" type="button" style="color:var(--text);border-color:var(--line-strong)">Empty</button>
+        <button class="btn btn-secondary" id="demoLoading" type="button" style="color:var(--text);border-color:var(--line-strong)">Loading</button>
+        <button class="btn btn-secondary" id="demoError" type="button" style="color:var(--text);border-color:var(--line-strong)">Error</button>
+        <button class="btn btn-secondary" id="demoSuccess" type="button" style="color:var(--text);border-color:var(--line-strong)">Success</button>
+      </div>
+      <div class="state-block" id="stateDemoOut" aria-live="polite">
+        <h3>State patterns live here</h3>
+        <p class="small">Choose a pattern above to see it render in place.</p>
       </div>
     </div>
   </section>
 </main>
 
-<footer class="site"><div class="wrap">
-  <p><strong style="color:var(--ink)">SwarmTriage</strong> — a product of <strong style="color:var(--ink)">AGI Corp</strong> · <a href="https://www.agicorp.network">www.agicorp.network</a> · This site: triage.agicorp.network</p>
-  <p>Built for the Nace AI Drexathon × Adobe EDU (Nov 14, 2026). Tracks: Swarm Intelligence (primary) + a measured-latency proof layer. Drex and NDI are Nace AI products; Claude is an Anthropic product; Gemini is a Google product. Demo-engine numbers on this page are labelled and are not Drex results.</p>
-  <p>Decisions are probabilities — a human can always override. © 2026 AGI Corp.</p>
-</div></footer>
+<footer class="site">
+  <div class="wrap">
+    <p><strong>SwarmTriage</strong> — an AGI Corp product in the agentic network. Agents gather. Drex decides. Humans stay in charge.</p>
+    <p>Demo engine mode: all decisions on this page run the labelled demo core (the exact Drexathon decision logic) in your browser. No live Drex call has been verified yet, and no number on this page is presented as one. Adobe assets are STAGED specs until produced — see <span class="mono">app/adobe-assets/</span>.</p>
+    <p>Contact for agents: <span class="mono">POST /v1/decide</span> (documented in Slice 4) · Human contact always available on request — anyone who asks for a human gets one.</p>
+  </div>
+</footer>
 
-<script>
-"use strict";
-/* Decision core ported 1:1 from app.py (mock_drex + route).
-   DEMO ENGINE: heuristic stand-in, labelled everywhere. Live mode swaps
-   decide() for a server-side POST /v1/systemone call (Nace Drex) that
-   returns the same shape; the browser never holds NACE_API_KEY. */
-const ITEMS=[
- {id:"msg-1",source:"email",label:"✉️ Reporter interview",text:"Hi - loved the Fellowship piece. I'd like to interview Mike this week for a story. Can I speak directly with a human to set it up? - Anna, reporter"},
- {id:"msg-2",source:"email",label:"🚫 Unsubscribe",text:"Unsubscribe me please. Do not email me again."},
- {id:"msg-3",source:"pdf-grant-notice",label:"📄 Grant PDF",text:"Pollination Project seed grant: applications close Nov 30, 2026 11:59 PM ET. Awards up to $1,000 for early-stage changemakers. Referee required."},
- {id:"msg-4",source:"email",label:"🤝 Partner reply",text:"Interesting project. Tell me more about how the agent interviews work and what a pilot would look like?"},
- {id:"msg-5",source:"scan-invoice",label:"🧾 Invoice scan",text:"INVOICE #4471 - Amount due $0.00 - PAID IN FULL - thank you for your business."}
-];
-let current=ITEMS[0];
-function prob(t,words,base,hit){base=base===undefined?0.06:base;hit=hit===undefined?0.88:hit;return words.some(w=>t.includes(w))?hit:base;}
-function decide(text){
-  const t=text.toLowerCase();
-  const wants_human=prob(t,["human","speak directly","call me"]);
-  const unsub=prob(t,["unsubscribe","do not email"]);
-  let interested=0.18;
-  if(t.includes("tell me more")||t.includes("pilot"))interested=0.82;else if(t.includes("interview"))interested=0.74;
-  let category,urgency;
-  if(t.includes("grant")){category="grant";urgency=2;}
-  else if(t.includes("tell me more")||t.includes("pilot")){category="partner";urgency=1;}
-  else if(t.includes("interview")){category="interview";urgency=2;}
-  else if(unsub>0.5){category="admin";urgency=1;}
-  else if(t.includes("invoice")){category="admin";urgency=0;}
-  else{category="partner";urgency=1;}
-  return{wants_human:{noul:wants_human},is_interested:{noul:interested},is_unsubscribe:{noul:unsub},
-    category:{choice:category,confidence:0.81},urgency:{score:urgency,confidence:0.77},mode:"DEMO ENGINE - not a Drex result"};
-}
-function route(a){
-  if(a.is_unsubscribe.noul>=0.70)return["SUPPRESS","Unsubscribe probability >= 0.70 - remove from all queues, never contact again.","suppress"];
-  if(a.wants_human.noul>=0.70)return["HUMAN HANDOFF","Wants-human probability >= 0.70 - a human (Mike) follows up personally, agent leaves the thread.","handoff"];
-  if(a.category.choice==="grant"&&a.urgency.score>=2)return["ACT TODAY","Grant with a deadline and urgency >= 2 - surface to Mike today with the closing date.","today"];
-  if(a.is_interested.noul>=0.60)return["CONVERSATIONAL REPLY","Interest probability >= 0.60 - reply in a real conversation within 10 minutes, no form letter.","reply"];
-  return["FILE / NO ACTION","No threshold crossed - file it, no outreach.","file"];
-}
-const $=id=>document.getElementById(id);
-const chips=$("chips"),input=$("inputText"),thread=$("thread");
-ITEMS.forEach((it,i)=>{
-  const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=it.label;
-  b.setAttribute("aria-pressed",i===0?"true":"false");
-  b.onclick=()=>{current=it;input.value=it.text;$("srcLabel").textContent=it.source;
-    [...chips.children].forEach(c=>c.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");};
-  chips.appendChild(b);
-});
-input.value=current.text;
-input.addEventListener("input",()=>{current={id:"custom-1",source:"pasted",label:"Pasted item",text:input.value};$("srcLabel").textContent="pasted";
-  [...chips.children].forEach(c=>c.setAttribute("aria-pressed","false"));});
-function addMsg(cls,who,text,delay){
-  return new Promise(res=>setTimeout(()=>{const d=document.createElement("div");d.className="msg "+cls;
-    d.innerHTML="<b></b> <span></span>";d.querySelector("b").textContent=who;d.querySelector("span").textContent=text;
-    thread.appendChild(d);requestAnimationFrame(()=>d.classList.add("show"));res();},delay));
-}
-async function sha16(s){try{const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
-  return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("").slice(0,16);}catch(e){return "demo-hash-unavail";}}
-let runCount=0;
-async function addPacket(item,a,action){
-  runCount++;const pid="pkt_demo_"+(await sha16(item.text+Date.now()+runCount));
-  const d=document.createElement("div");d.className="packet";
-  d.textContent="PACKET "+pid+" · agent-net/1\nfrom: reader-agent@swarmtriage → drex (via /v1/decide)\nitem: "+item.id+" ("+item.source+") · category: "+a.category.choice+" · urgency: "+a.urgency.score+"\nverdict: "+action+" · mode: "+a.mode+"\nsig: demo (browser-generated, unsigned)";
-  $("feed").prepend(d);
-}
-$("runBtn").onclick=async()=>{
-  const item={id:current.id,source:current.source,text:input.value};
-  thread.innerHTML="";$("drexPanel").style.display="none";const ab=$("actionBox");ab.className="action";ab.style.display="none";
-  $("runBtn").disabled=true;
-  const money=(item.text.match(/\$[\d,]+(\.\d+)?/)||["no amount"])[0];
-  const when=(item.text.match(/(Nov|Dec|Jan)\s+\d{1,2},?\s*2026/)||["no date"])[0];
-  await addMsg("reader","🔎 Reader → Extractor:","Got a "+item.source+" item ("+item.text.length+" chars). Reading only — I never decide. Raw text handed over.",60);
-  await addMsg("extractor","🧩 Extractor → Skeptic:","Grounded signals: amount "+money+", date "+when+", category hints logged. This is the shape NDI hands back from PDFs, scans and emails.",420);
-  await addMsg("skeptic","🧐 Skeptic → Drex:","I challenged the obvious read and found no reason to override the state. Sending state + 5 typed questions to Drex (System One). I don't decide either.",420);
-  const t0=performance.now();const a=decide(item.text);const ms=Math.max(0.1,performance.now()-t0);
-  const [action,why,cls]=route(a);
-  $("drexPanel").style.display="block";
-  const rows=[["wants_human · noul",a.wants_human.noul],["is_interested · noul",a.is_interested.noul],["is_unsubscribe · noul",a.is_unsubscribe.noul],["urgency · score /3",a.urgency.score/3]];
-  $("bars").innerHTML=rows.map(r=>'<div class="bar-row"><span>'+r[0]+'</span><div class="bar-track"><div class="bar-fill" data-w="'+Math.round(r[1]*100)+'"></div></div><span>'+(r[0].includes("score")?a.urgency.score.toFixed(0)+" / 3":r[1].toFixed(2))+'</span></div>').join("");
-  requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll(".bar-fill").forEach(f=>f.style.width=f.dataset.w+"%"),40));
-  $("catLine").textContent="category · choice → "+a.category.choice+" (confidence "+a.category.confidence.toFixed(2)+") · urgency confidence "+a.urgency.confidence.toFixed(2)+" · legends: urgency 0 routine → 3 immediate";
-  $("timing").textContent="demo-engine compute: "+ms.toFixed(1)+" ms (measured in your browser; live Drex returns its own evaluation_time_ms)";
-  ab.className="action show "+cls;ab.innerHTML="";const s=document.createElement("strong");s.textContent="⚡ "+action;
-  ab.appendChild(s);ab.appendChild(document.createElement("br"));ab.appendChild(document.createTextNode(why+"  ·  Mode: "+a.mode));
-  ab.style.display="block";
-  await addPacket(item,a,action);
-  $("runBtn").disabled=false;
-};
-/* Seed the packet feed with the 5 sample decisions */
-(async()=>{for(const it of ITEMS){const a=decide(it.text);const[action]=route(a);await addPacket(it,a,action);}})();
-</script>
+<script src="config.js"></script>
+<script src="decision-core.js"></script>
+<script src="app.js"></script>
+<!-- Slice 8: view scripts (homepage / console / agents / pricing / email /
+     workspace) are loaded on approach by the lazy loader in app.js, so the
+     up-front JS stays at the shell's 14,204 bytes — under the DS v2 §11
+     30 KB budget — and shell + any single view stays under it too. -->
 </body>
 </html>

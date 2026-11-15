@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SwarmTriage sitemap — STAGED in the build folder by the M2 maintenance rotation
+     (2026-11-14) for Mike's watched push. The live site 404s /sitemap.xml today
+     (VERIFIED 2026-11-14, see ../M2-DEFECT-VERIFICATION.md). Single-page app:
+     only the canonical home is a URL; in-page sections are anchors, not pages.
+     Per defect D-010's lesson, /agent.json and /llms.txt are NOT listed here —
+     they are not pages. lastmod is the staging date; refresh it at push time. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://triage.agicorp.network/</loc>
+    <lastmod>2026-11-15</lastmod>
+  </url>
+</urlset>

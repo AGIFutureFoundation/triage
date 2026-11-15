@@ -1,0 +1,39 @@
+/* SwarmTriage — Design System v2 tokens (verbatim values from
+   ~/workspace/your_files/design-system-2026-11/DESIGN-SYSTEM.md §3–§5)
+   + AGI Corp accent set (§3.4). One accent file per holding; this app is
+   an AGI Corp surface, so the AGI Corp set is loaded here. */
+:root{
+  /* §3.1 shared neutral spine (light) */
+  --bg:#FAF6EC; --surface:#FFFDF7; --surface-quiet:#F1EAD8;
+  --text:#17222D; --text-2:#405364; --text-3:#5A6B7A;
+  --line:#DDD3BA; --line-strong:#8A7B52;
+  --gold:#C9A227; --gold-text:#7A5C00; --gold-fill:#E8C85A;
+  --link:#0E7C7B; --focus:#0E7C7B;
+  /* §3.2 dark grounds */
+  --bg-d:#07131F; --surface-d:#0B1E3A; --raised-d:#123152;
+  --text-d:#F5F1E6; --text-d2:#C7D2DF; --text-d3:#93A5BC;
+  --line-d:rgba(255,255,255,.18); --link-d:#E8C85A; --focus-d:#E8C85A;
+  /* §3.4 AGI Corp accent set */
+  --accent:#17352A; --accent-deep:#17352A; --accent-bright:#E9B949;
+  --accent-text:#17352A; --gold-deep:#8A6100; --on-accent:#FFFFFF;
+  /* §3.5 status (always paired with a text label) */
+  --success:#1E7A34; --success-tint:#EAF4EC;
+  --danger:#B3261E; --danger-tint:#FBEAE9;
+  --warning:#8A5A00; --warning-tint:#FFF3D6;
+  --info:#175CD3; --info-tint:#EAF0FE;
+  --success-d:#7BD88F; --danger-d:#F2B8B5;
+  /* §4 typography — system stacks only, 0 webfont downloads */
+  --font-display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+  /* §5 space / shape / elevation / motion */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+  --sp-6:32px; --sp-7:48px; --sp-8:64px; --sp-9:96px; --sp-10:128px;
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-pill:999px;
+  --sh-sm:0 4px 14px rgba(7,19,31,.07);
+  --sh-md:0 14px 36px rgba(7,19,31,.12);
+  --sh-lg:0 24px 60px rgba(7,19,31,.18);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --container:72rem; --reading:46rem; --app-container:80rem;
+  --gutter:clamp(1.25rem,4vw,3rem);
+}
